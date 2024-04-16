@@ -1,8 +1,9 @@
 import "./index.css";
+import "bootstrap/dist/js/bootstrap.bundle.min";
+import 'react-toastify/dist/ReactToastify.css';
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import "bootstrap/dist/js/bootstrap.bundle.min";
 import { store } from "./app/store.jsx";
 import { Provider } from "react-redux"
 

@@ -14,6 +14,8 @@ const createPlanValidation = [
     .trim()
     .notEmpty()
     .withMessage("Price is required")
+    .isNumeric()
+    .withMessage("Price should be a number")
     .isLength({ min: 0, max: 32 })
     .withMessage("Price should contain at least 1 to maximum 32 character"),
   body("mbps")

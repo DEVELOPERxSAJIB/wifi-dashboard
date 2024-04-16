@@ -17,9 +17,40 @@ const getAllPlans = async (req, res, next) => {
       throw createError(400, "No plans found");
     }
 
+    // sort it
+    // plan.sort((a, b) => b.createdAt - a.createdAt);
+
     successResponse(res, {
       statusCode: 200,
       message: "All plans found",
+      payload: {
+        plan,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC Get single plans
+ * @ROUTE /api/v1/plan/:id
+ * @method GET
+ * @access PUBLIC
+ */
+const getSinglePlan = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const plan = await Plan.findById(id);
+
+    if (!plan) {
+      throw createError(400, "Invalid id");
+    }
+
+    successResponse(res, {
+      statusCode: 200,
+      message: "Single plan found",
       payload: {
         plan,
       },
@@ -96,22 +127,28 @@ const updatePlan = async (req, res, next) => {
     // icon uploding to cloud storage
     let icon = null;
     if (req.file) {
-      const public_id = existingPlan.icon.public_id;
-      await planIconDelete(public_id);
+      const public_id = existingPlan.icon?.public_id;
+      if (public_id !== null) {
+        await planIconDelete(public_id);
+      }
       icon = await planIconUpload(req.file);
     }
 
     // update existing plan
-    const plan = await Plan.findByIdAndUpdate(id, {
-      name: name,
-      price: price,
-      badge: badge,
-      mbps: mbps,
-      icon: {
-        public_id: icon ? icon?.public_id : existingPlan.icon.public_id,
-        url: icon ? icon?.url : existingPlan.icon.url,
+    const plan = await Plan.findByIdAndUpdate(
+      id,
+      {
+        name: name,
+        price: price,
+        badge: badge,
+        mbps: mbps,
+        icon: {
+          public_id: icon ? icon?.public_id : existingPlan.icon.public_id,
+          url: icon ? icon?.url : existingPlan.icon.url,
+        },
       },
-    });
+      { new: true }
+    );
 
     // return result
     successResponse(res, {
@@ -143,7 +180,7 @@ const deletePlan = async (req, res, next) => {
     }
 
     // delete plan icon
-    if (existingPlan.icon === Object) {
+    if (existingPlan?.icon?.url !== null) {
       await planIconDelete(existingPlan?.icon?.public_id);
     }
 
@@ -168,4 +205,5 @@ module.exports = {
   createPlan,
   updatePlan,
   deletePlan,
+  getSinglePlan,
 };

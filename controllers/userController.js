@@ -1,12 +1,17 @@
 const createError = require("http-errors");
-const User = require("../models/User");
 const { successResponse, errorResponse } = require("./responseController");
+const {
+  cloudUploadAvatar,
+  cloudUploadDocumnets,
+} = require("../utils/cloudinary");
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
 
 /**
  * @DESC Get all users
  * @ROUTE /api/v1/user
  * @method GET
- * @access PUBLIC
+ * @access PRIVATE
  */
 const getAllUsers = async (req, res, next) => {
   try {
@@ -31,78 +36,128 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-// /**
-//  * @DESC Get Single users data
-//  * @ROUTE /api/v1/user/:id
-//  * @method GET
-//  * @access public
-//  */
-// export const getSingleUser = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
-
-//   const user = await User.findById(id);
-
-//   if (!user) {
-//     return res.status(404).json({ message: "User data not found" });
-//   }
-
-//   res.status(200).json(user);
-// });
-
 /**
  * @DESC Create new User
- * @ROUTE /api/v1/user
+ * @ROUTE /api/v1/user/create-user
  * @method POST
- * @access public
+ * @access PRIVATE
  */
-const createUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+const createUser = async (req, res, next) => {
+  try {
+    const {
+      name,
+      email,
+      mobile,
+      password,
+      salary,
+      gender,
+      remark,
+      street,
+      province,
+      city,
+      postalCode,
+      country,
+    } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+    // check user email
+    const userEmailCheck = await User.findOne({ email });
+    if (userEmailCheck) {
+      throw createError(400, "User with this email already exists");
+    }
+
+    // check user mobile
+    const userMobileCheck = await User.findOne({ mobile });
+    if (userMobileCheck) {
+      throw createError(400, "User with this mobile already exists");
+    }
+
+    let avatar = null;
+    let uploadedDocuements = null;
+
+    if (req.files) {
+      // avatar upload
+      const data = req.files?.userAvatar[0];
+      if (data) {
+        avatar = await cloudUploadAvatar(data);
+      }
+
+      // documents upload
+      const doc = req.files?.userDocuments;
+      if (doc) {
+        uploadedDocuements = await cloudUploadDocumnets(doc);
+      }
+    }
+
+    // separate data from uploaded docuements
+    let documents = [];
+    uploadedDocuements.forEach((file) => {
+      documents.push({
+        public_id: file?.public_id,
+        url: file?.url,
+      });
+    });
+
+    // password hash
+    const hashPass = await bcrypt.hash(password, 10);
+
+    const data = {
+      name,
+      email,
+      mobile,
+      salary,
+      gender,
+      remark,
+      password: hashPass,
+      address: {
+        street,
+        province,
+        city,
+        postalCode,
+        country,
+      },
+      avatar: {
+        public_id: avatar ? avatar?.public_id : null,
+        url: avatar ? avatar?.secure_url : null,
+      },
+      documents: documents,
+    };
+
+    // create new user
+    const user = await User.create(data);
+
+    successResponse(res, {
+      statusCode: 200,
+      message: `Profile successfull created for "${name}"`,
+      payload: {
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-
-  // check user email
-  const userEmailCheck = await User.findOne({ email });
-
-  if (userEmailCheck) {
-    return res.status(400).json({ message: "Email already exists" });
-  }
-
-  // password hash
-  const hashPass = await bcrypt.hash(password, 10);
-
-  // create new user
-  const user = await User.create({
-    name,
-    email,
-    password: hashPass,
-    role,
-  });
-
-  // send user access to email
-  sendMail({
-    to: email,
-    sub: "Account Access Info",
-    msg: `Your account login access is email : ${email} & password : ${password}`,
-  });
-
-  res.status(200).json({ user, message: `${name} user created successful` });
 };
 
-// /**
-//  * @DESC Delete User
-//  * @ROUTE /api/v1/user/:id
-//  * @method DELETE
-//  * @access public
-//  */
-// export const deleteUser = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
+/**
+ * @DESC Delete User
+ * @ROUTE /api/v1/user/:id
+ * @method DELETE
+ * @access PRIVATE
+ */
+const deleteUser = async (req, res, error) => {
+  try {
+    const { id } = req.params;
 
-//   const user = await User.findByIdAndDelete(id);
+    if (!id) {
+      throw createError("Invalid id provided");
+    }
 
-//   res.status(200).json(user);
-// });
+    const user = await User.findByIdAndDelete(id);
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+};
 
 // /**
 //  * @DESC Update User
@@ -137,4 +192,6 @@ const createUser = async (req, res) => {
 // module export
 module.exports = {
   getAllUsers,
+  createUser,
+  deleteUser,
 };

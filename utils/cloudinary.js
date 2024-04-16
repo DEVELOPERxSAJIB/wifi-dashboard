@@ -15,17 +15,30 @@ const planIconUpload = async (iconInfo) => {
 
 // Delete plan icon
 const planIconDelete = async (publicId) => {
-  console.log(publicId);
   await cloudinary.v2.uploader.destroy(publicId);
 };
 
-// Profile picture upload
-// const cloudUploadAvatar = async (avaterInfo) => {
-//   const results = await cloudinary.uploader.upload(avaterInfo.path, {
-//     folder: "avatars",
-//   });
-//   return results;
-// };
+// avatar upload
+const cloudUploadAvatar = async (avaterInfo) => {
+  const results = await cloudinary.uploader.upload(avaterInfo.path);
+  return results;
+};
+
+// documnets upload
+const cloudUploadDocumnets = async (docArray) => {
+  const results = await Promise.all(
+    docArray?.map(async (file) => {
+      const result = await cloudinary.uploader.upload(file.path, {
+        resource_type : "auto",
+        allowed_formats: ["pdf", "doc", "docx", "png", "jpg", "jpeg"],
+        format: file.originalname.split('.').pop(),
+      });
+      return result;
+    })
+  );
+
+  return results;
+};
 
 // export const cloudUploads = async (path) => {
 //   // upload brand logo
@@ -33,11 +46,10 @@ const planIconDelete = async (publicId) => {
 //   return data.secure_url;
 // };
 
-
-
-
 // module exports
 module.exports = {
   planIconUpload,
-  planIconDelete
-}
+  planIconDelete,
+  cloudUploadAvatar,
+  cloudUploadDocumnets,
+};

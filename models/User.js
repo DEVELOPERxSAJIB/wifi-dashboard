@@ -10,11 +10,13 @@ const userSchema = mongoose.Schema(
     email: {
       type: String,
       trim: true,
+      unique: true,
       required: true,
     },
     mobile: {
       type: String,
       trim: true,
+      unique: true,
       required: true,
     },
     password: {
@@ -44,29 +46,32 @@ const userSchema = mongoose.Schema(
         type: String,
       },
     },
-    status: {
-      type: Boolean,
-      default: true,
+    documents: [
+      {
+        public_id: {
+          type: String,
+        },
+        url: {
+          type: String,
+        },
+      },
+    ],
+    remark: {
+      type: String,
+      trim: true,
+      default: null,
     },
     isBan: {
       type: Boolean,
       default: false,
     },
-    nationalid: {
-      type: String,
-      trim: true,
-      unique: true,
-    },
-    remark: {
-      type: String,
-      trim: true,
-      unique: true,
-      default: null,
-    },
     address: {
-      lane: {
+      street: {
         type: String,
         required: true,
+      },
+      province: {
+        type: String,
       },
       city: {
         type: String,
@@ -74,16 +79,13 @@ const userSchema = mongoose.Schema(
       },
       postalCode: {
         type: String,
-        required: true,
       },
       country: {
         type: String,
-        required: true,
       },
     },
-
-
-  }, { timestamps: true }
+  },
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", userSchema);

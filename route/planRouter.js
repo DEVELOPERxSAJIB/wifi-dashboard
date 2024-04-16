@@ -4,10 +4,11 @@ const {
   createPlan,
   deletePlan,
   updatePlan,
+  getSinglePlan,
 } = require("../controllers/planController");
 const runValidation = require("../validators");
-const { createPlanValidation } = require("../validators/Plan");
 const { planIcon } = require("../utils/multer");
+const { createPlanValidation } = require("../validators/plan");
 
 // init router
 const planRouter = express.Router();
@@ -17,6 +18,7 @@ const planRouter = express.Router();
 
 // create route
 planRouter.route("/").get(getAllPlans);
+planRouter.route("/:id").get(getSinglePlan);
 planRouter
   .route("/create-plan")
   .post(planIcon, createPlanValidation, runValidation, createPlan);

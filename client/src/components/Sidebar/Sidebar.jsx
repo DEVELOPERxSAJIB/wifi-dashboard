@@ -1,7 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 const Sidebar = () => {
   const location = useLocation();
+  const { id } = useParams();
 
   return (
     <>
@@ -70,16 +71,20 @@ const Sidebar = () => {
 
           <li
             className={
-              location.pathname === "/packages" ? "menu-item active" : "menu-item"
+              location.pathname === "/packages" ||
+              location.pathname === "/create-plan" ||
+              location.pathname === `/update-plan/${id}`
+                ? "menu-item active"
+                : "menu-item"
             }
           >
             <Link to={"/packages"} className="menu-link">
-            <i className="ti ti-currency-dollar me-1 ti-xs"></i>
+              <i className="ti ti-currency-dollar me-1 ti-xs"></i>
               <div data-i18n="Email">Pricing & Plans</div>
             </Link>
           </li>
 
-            {/* Employees */}
+          {/* Employees */}
           <li className={"menu-item"}>
             <a
               href="#productSubmenu"
@@ -128,7 +133,7 @@ const Sidebar = () => {
             </ul>
           </li>
 
-                {/* Customers */}
+          {/* Customers */}
           <li className={"menu-item"}>
             <a
               href="#customerSubmenu"

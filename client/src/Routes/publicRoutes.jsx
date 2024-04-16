@@ -10,6 +10,8 @@ import CreateCustomer from "../pages/Customer/CreateCustomer";
 import Plans from "../pages/Plans/Plans";
 import Settings from "../pages/Settings/Settings";
 import Forgot from "../pages/auth/Forgot";
+import CreatePlan from "../pages/Plans/CreatePlan";
+import UpdatePlan from "../pages/Plans/UpdatePlan";
 
 export const publicRoutes = [
   {
@@ -50,6 +52,14 @@ export const publicRoutes = [
       {
         path: "/settings",
         element: <Settings />,
+      },
+      {
+        path: "/create-plan",
+        element: <CreatePlan />,
+      },
+      {
+        path: "/update-plan/:id",
+        element: <UpdatePlan />,
       },
     ],
   },
