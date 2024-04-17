@@ -6,8 +6,9 @@ const cookieParser = require("cookie-parser");
 const mongoBDConnect = require("./config/db.js");
 const createError = require("http-errors");
 const rateLimit = require("express-rate-limit");
-const userRouter = require("./route/userRouter.js");
 const { errorResponse } = require("./controllers/responseController.js");
+const authRouter = require("./route/authRouter.js");
+const userRouter = require("./route/userRouter.js");
 const planRouter = require("./route/planRouter.js");
 
 // initialization
@@ -40,6 +41,7 @@ const PORT = process.env.PORT || 9090;
 app.use(express.static("public"));
 
 // routing
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/plan", planRouter);
 

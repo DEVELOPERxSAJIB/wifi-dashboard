@@ -1,7 +1,13 @@
-import asyncHandler from "express-async-handler";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+const createError = require("http-errors");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const { successResponse } = require("./responseController");
+const {
+  replaceDotWithHeypen,
+  replaceHeypenWithDot,
+} = require("../helpers/bothAccessAbleToken");
+const emailWithNodemailer = require("../utils/sendEmail");
 
 /**
  * @DESC User Login
@@ -9,125 +15,253 @@ import User from "../models/User.js";
  * @method POST
  * @access public
  */
-export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+const authLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
 
-  // validation
-  if (!email || !password)
-    return res.status(404).json({ message: "All fields are required" });
+    // find login user by email
+    const loginUser = await User.findOne({ email });
 
-  // find login user by email
-  const loginUser = await User.findOne({ email }).populate("role");
-
-  // user not found
-  if (!loginUser) return res.status(404).json({ message: "User not found" });
-
-  // password check
-  const passwordCheck = await bcrypt.compare(password, loginUser.password);
-
-  // password check
-  if (!passwordCheck)
-    return res.status(404).json({ message: "Wrong password" });
-
-  // create access token
-  const token = jwt.sign(
-    { email: loginUser.email },
-    process.env.ACCESS_TOKEN_SECRET,
-    {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
+    // user not found
+    if (!loginUser) {
+      throw createError(404, "Invalid email or password");
     }
-  );
 
-  // create Refresh token
-  const refreshToken = jwt.sign(
-    { email: loginUser.email },
-    process.env.REFRESH_TOKEN_SECRET,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN,
+    // password check
+    const passwordCheck = await bcrypt.compare(password, loginUser.password);
+
+    // password check
+    if (!passwordCheck) {
+      throw createError(404, "Invalid email or password");
     }
-  );
 
-  res.cookie("accessToken", token, {
-    httpOnly: true,
-    secure: process.env.APP_ENV == "Development" ? false : true,
-    sameSite: "strict",
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+    const user = await User.findOne({ email }).select("-password");
 
-  res.status(200).json({
-    token,
-    user: loginUser,
-    message: "User Login Successful",
-  });
-});
+    // create access token
+    const token = jwt.sign(
+      { email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN,
+      }
+    );
 
-/**
- * @DESC User Login
- * @ROUTE /api/v1/auth/login
- * @method POST
- * @access public
- */
-export const logout = asyncHandler(async (req, res) => {
-  res.clearCookie("accessToken");
-  res.status(200).json({ message: "Logout successful" });
-});
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: process.env.APP_ENV == "Development" ? false : true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-/**
- * @DESC Create new User
- * @ROUTE /api/v1/user
- * @method POST
- * @access public
- */
-export const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
-
-  if (!name || !email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
+    successResponse(res, {
+      statusCode: 200,
+      message: "User Login Successful",
+      payload: {
+        token,
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
   }
+};
 
-  // check user email
-  const userEmailCheck = await User.findOne({ email });
+/**
+ * @DESC User Logout
+ * @ROUTE /api/v1/auth/logout
+ * @method POST
+ * @access public
+ */
+const authLogout = async (req, res, next) => {
+  try {
+    res.clearCookie("accessToken");
 
-  if (userEmailCheck) {
-    return res.status(400).json({ message: "Email already exists" });
+    successResponse(res, {
+      statusCode: 200,
+      message: "User Logout Successful",
+    });
+  } catch (error) {
+    next(error);
   }
-
-  // password hash
-  const hashPass = await bcrypt.hash(password, 10);
-
-  // create new user
-  const user = await User.create({
-    name,
-    email,
-    password: hashPass,
-  });
-
-  res.status(200).json({
-    user,
-    message: "User Created successful",
-  });
-});
+};
 
 /**
- * @DESC Create new User
- * @ROUTE /api/v1/user
- * @method POST
+ * @DESC LoggedIn User Data
+ * @ROUTE /api/v1/auth/user
+ * @method GET
  * @access public
  */
-export const loggedInUser = asyncHandler(async (req, res) => {
-  res.status(200).json(req.me);
-});
+const loggedInUser = async (req, res, next) => {
+  try {
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Logged in user details",
+      payload: { user: req.user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 /**
- * @DESC Create new User
- * @ROUTE /api/v1/user
- * @method POST
- * @access public
+ * @DESC Update Password
+ * @ROUTE api/v1/auth/update-password
+ * @method PATCH
+ * @access PRIVATE
  */
-export const makeHashPass = asyncHandler(async (req, res) => {
-  const { password } = req.body;
-  // password hash
-  const hashPass = await bcrypt.hash(password, 10);
-  res.status(200).json({ hashPass });
-});
+const updatePassword = async (req, res, next) => {
+  try {
+    const id = req.user._id;
+    const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      throw createError(400, "All feilds are required");
+    }
+
+    const user = await User.findById(id);
+
+    // check previous user password
+    const isPasswordMatch = bcrypt.compareSync(oldPassword, user.password);
+
+    if (!isPasswordMatch) {
+      throw createError(400, "Old password mismatch");
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw createError(400, "Confirm password not matched");
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    const updatedPassUser = await User.findByIdAndUpdate(
+      id,
+      {
+        password: hashPassword,
+      },
+      { new: true }
+    ).select("-password");
+
+    res.clearCookie("accessToken", null, {
+      httpOnly: true,
+    });
+
+    successResponse(res, {
+      success: true,
+      message: "Password updated successfully. Please login again",
+      payload: {
+        user: updatedPassUser,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC Forget Password
+ * @ROUTE api/v1/auth/forget-password
+ * @method POST
+ * @access PUBLIC
+ */
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    // if existing user not found
+    if (!user) {
+      throw createError(404, "No such user registred with this email yet");
+    }
+
+    const token = jwt.sign({ email }, process.env.JWT_RESET_PASSWORD_KEY, {
+      expiresIn: "15m",
+    });
+
+    // make token accessable
+    const acceptableTokenForClient = replaceDotWithHeypen(token);
+
+    // gen link
+    const link = `${process.env.CLIENT_URL}/reset-password/${acceptableTokenForClient}`;
+
+    // prepare for sent email
+    const emailOptions = {
+      email: user.email,
+      subject: "Reset your password",
+      html: `
+        <a href=${link}>Click Here<a/> to reset your password
+      `,
+    };
+
+    // send email with nodemailer
+    await emailWithNodemailer(emailOptions);
+
+    successResponse(res, {
+      statusCode: 200,
+      message: `A reset password link was sent to ${user.email}. Please check`,
+      payload: { token: acceptableTokenForClient },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC Reset the password
+ * @ROUTE api/v1/auth/reset-password/:token
+ * @method PATCH
+ * @access PRIVATE
+ */
+const resetPassword = async (req, res, next) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+    const serverAcceptableToken = replaceHeypenWithDot(token);
+
+    const decoded = jwt.verify(
+      serverAcceptableToken,
+      process.env.JWT_RESET_PASSWORD_KEY
+    );
+
+    const user = await User.findOne({
+      email: decoded.email,
+    });
+
+    if (!user) {
+      throw createError(404, "User not found for reset Password");
+    }
+
+    if (password !== confirmPassword) {
+      throw createError(400, "Confirm password not matched");
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
+
+    const userAfterResetPass = await User.findByIdAndUpdate(
+      user._id,
+      {
+        password: hashPassword,
+      },
+      { new: true }
+    ).select("-password");
+
+    successResponse(res, {
+      statusCode: 200,
+      message: "Password reset successfully. Please login here!!!",
+      payload: {
+        user: userAfterResetPass,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  authLogin,
+  authLogout,
+  loggedInUser,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+};

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
+
   return (
     <>
       <nav
@@ -242,14 +243,13 @@ const Navbar = () => {
                   <div className="dropdown-divider" />
                 </li>
                 <li>
-                  <a
+                  <Link
                     className="dropdown-item"
-                    href="auth-login-cover.html"
-                    target="_blank"
+                    to="/logout"
                   >
                     <i className="ti ti-logout me-2 ti-sm" />
                     <span className="align-middle">Log Out</span>
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </li>

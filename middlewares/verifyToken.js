@@ -1,10 +1,8 @@
-import asyncHandler from "express-async-handler";
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User.js");
 
 const tokenVerify = (req, res, next) => {
-  // const authHeader = req.headers.authorization || req.headers.Authorization;
-
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
@@ -19,14 +17,14 @@ const tokenVerify = (req, res, next) => {
         return res.status(400).json({ message: "Invalid Token" });
       }
 
-      const me = await User.findOne({ email: decode.email })
-        .select("-password")
-        .populate("role");
+      const user = await User.findOne({ email: decode.email }).select(
+        "-password"
+      );
 
-      req.me = me;
+      req.user = user;
       next();
     })
   );
 };
 
-export default tokenVerify;
+module.exports = tokenVerify;

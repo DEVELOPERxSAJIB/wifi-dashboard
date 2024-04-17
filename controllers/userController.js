@@ -90,12 +90,14 @@ const createUser = async (req, res, next) => {
 
     // separate data from uploaded docuements
     let documents = [];
-    uploadedDocuements.forEach((file) => {
-      documents.push({
-        public_id: file?.public_id,
-        url: file?.url,
+    if (uploadedDocuements) {
+      uploadedDocuements.forEach((file) => {
+        documents.push({
+          public_id: file?.public_id,
+          url: file?.url,
+        });
       });
-    });
+    }
 
     // password hash
     const hashPass = await bcrypt.hash(password, 10);
@@ -119,7 +121,7 @@ const createUser = async (req, res, next) => {
         public_id: avatar ? avatar?.public_id : null,
         url: avatar ? avatar?.secure_url : null,
       },
-      documents: documents,
+      documents: documents.length > 0 ? documents : uploadedDocuements,
     };
 
     // create new user

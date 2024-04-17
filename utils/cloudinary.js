@@ -29,9 +29,10 @@ const cloudUploadDocumnets = async (docArray) => {
   const results = await Promise.all(
     docArray?.map(async (file) => {
       const result = await cloudinary.uploader.upload(file.path, {
+
         resource_type : "auto",
         allowed_formats: ["pdf", "doc", "docx", "png", "jpg", "jpeg"],
-        format: file.originalname.split('.').pop(),
+        
       });
       return result;
     })
