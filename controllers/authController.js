@@ -38,7 +38,7 @@ const authLogin = async (req, res, next) => {
     const user = await User.findOne({ email }).select("-password");
 
     // create access token
-    const token = jwt.sign(
+    const aToken = jwt.sign(
       { email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
       {
@@ -46,22 +46,21 @@ const authLogin = async (req, res, next) => {
       }
     );
 
-    res.cookie("accessToken", token, {
+    res.cookie("accessToken", aToken, {
       httpOnly: true,
-      secure: process.env.APP_ENV == "Development" ? false : true,
+      secure: process.env.MODE == "Development" ? false : true,
       sameSite: "strict",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
     successResponse(res, {
       statusCode: 200,
       message: "User Login Successful",
       payload: {
-        token,
         user,
       },
     });
+
   } catch (error) {
     next(error);
   }
@@ -168,6 +167,10 @@ const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    if (!email) {
+      throw createError(400, "Email is required");
+    }
+
     const user = await User.findOne({ email });
 
     // if existing user not found
@@ -183,7 +186,7 @@ const forgotPassword = async (req, res, next) => {
     const acceptableTokenForClient = replaceDotWithHeypen(token);
 
     // gen link
-    const link = `${process.env.CLIENT_URL}/reset-password/${acceptableTokenForClient}`;
+    const link = `${process.env.CLIENT_URL}/request-reset-password/${acceptableTokenForClient}`;
 
     // prepare for sent email
     const emailOptions = {
@@ -199,8 +202,7 @@ const forgotPassword = async (req, res, next) => {
 
     successResponse(res, {
       statusCode: 200,
-      message: `A reset password link was sent to ${user.email}. Please check`,
-      payload: { token: acceptableTokenForClient },
+      message: `Check your inbox and follow the instructions to reset your password.`,
     });
   } catch (error) {
     next(error);
@@ -216,6 +218,11 @@ const forgotPassword = async (req, res, next) => {
 const resetPassword = async (req, res, next) => {
   try {
     const { token, password, confirmPassword } = req.body;
+
+    if (!token || !password || !confirmPassword) {
+      throw createError(400, "All feilds are required");
+    }
+
     const serverAcceptableToken = replaceHeypenWithDot(token);
 
     const decoded = jwt.verify(

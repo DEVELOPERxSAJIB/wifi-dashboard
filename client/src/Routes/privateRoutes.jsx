@@ -7,11 +7,11 @@ import Account from "../pages/Employee/Account";
 import CreateEmployee from "../pages/Employee/CreateEmployee";
 import CreateCustomer from "../pages/Customer/CreateCustomer";
 import Plans from "../pages/Plans/Plans";
-import Settings from "../pages/Settings/Settings";
 import CreatePlan from "../pages/Plans/CreatePlan";
 import UpdatePlan from "../pages/Plans/UpdatePlan";
 import Logout from "../pages/auth/Logout";
 import PrivateGuard from "./PrivateGuard";
+import Settings from "../pages/auth/Settings/Settings";
 
 export const privateRoutes = [
   {

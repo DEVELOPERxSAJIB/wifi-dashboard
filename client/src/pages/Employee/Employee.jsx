@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import Table from "./Table";
 
 const Employee = () => {
   return (
@@ -13,7 +14,7 @@ const Employee = () => {
           <div className="btn btn-secondary add-new btn-primary waves-effect waves-light" tabIndex={0} aria-controls="DataTables_Table_0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddUser"><span><i className="ti ti-plus me-0 me-sm-1 ti-xs" /><span className="d-none d-sm-inline-block">Add Employee</span></span></div>
             </Link >
         </div>
-        <div className="card">
+        {/* <div className="card">
             <h5 className="card-header">Table Caption</h5>
             <div className="table-responsive text-nowrap">
               <table className="table">
@@ -351,7 +352,8 @@ const Employee = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </div> */}
+          <Table />
       </div>
     </>
   );

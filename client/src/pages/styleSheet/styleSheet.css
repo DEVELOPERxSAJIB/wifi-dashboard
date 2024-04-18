@@ -1,0 +1,22 @@
+.verify-loader {
+  padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.verify-loader .loader-1 {
+  text-align: center;
+  font-weight: 600;
+  font-family: sans-serif;
+  animation: l1 1s linear infinite alternate;
+  max-width: 500px;
+  color: #333;
+}
+
+@keyframes l1 {
+  to {
+    opacity: .2;
+  }
+}

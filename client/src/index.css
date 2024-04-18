@@ -17,6 +17,10 @@ ul {
   background-color: #f4f4f5;;
 }
 
+.authentication-wrapper.authentication-cover .authentication-inner .auth-cover-bg {
+  background-color: #f3f4f7;
+}
+
 .main-loader {
   position: fixed;
   inset: 0;
@@ -36,4 +40,13 @@ ul {
   height: 120px;
   padding-left: 0;
   margin: 20% auto;
+}
+
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.text-lg {
+  font-size: 24px;
 }

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { authLogin, loggedinUserInfo, logoutUser } from "./authApiSlice";
+import { authLogin, forgotPasswordReq, loggedinUserInfo, logoutUser, resetPassword, updatePassword } from "./authApiSlice";
 
 const authSlice = createSlice({
   name: "auth",
@@ -65,7 +65,45 @@ const authSlice = createSlice({
         state.loader = false;
         state.isAuthenticated = true;
         state.error = action.error.message;
-      });
+      })
+      .addCase(updatePassword.pending, (state) => {
+        state.loader = true;
+        state.isAuthenticated = true;
+      })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loader = false;
+        state.message = action.payload.message;
+        state.user = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem("user");
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loader = false;
+        state.isAuthenticated = true;
+        state.error = action.error.message;
+      })
+      .addCase(forgotPasswordReq.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(forgotPasswordReq.fulfilled, (state, action) => {
+        state.loader = false;
+        state.message = action.payload.message;
+      })
+      .addCase(forgotPasswordReq.rejected, (state, action) => {
+        state.loader = false;
+        state.error = action.error.message;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loader = false;
+        state.message = action.payload.message;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loader = false;
+        state.error = action.error.message;
+      })
   },
 });
 

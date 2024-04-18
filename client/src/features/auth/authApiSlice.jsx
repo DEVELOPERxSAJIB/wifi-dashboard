@@ -37,12 +37,74 @@ export const loggedinUserInfo = createAsyncThunk(
 // logout user
 export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
   try {
-    const res = await axios.post(`http://localhost:5050/api/v1/auth/logout`, {
-      withCredentials: true,
-    });
+    const res = await axios.post(
+      `http://localhost:5050/api/v1/auth/logout`,
+      "",
+      {
+        withCredentials: true,
+      }
+    );
 
     return res.data;
   } catch (error) {
     throw new Error(error.response.data.message);
   }
 });
+
+// update passowrd
+export const updatePassword = createAsyncThunk(
+  "auth/updatePassword",
+  async (data) => {
+    try {
+      const res = await axios.patch(
+        `http://localhost:5050/api/v1/auth/update-password`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+// request for reset password
+export const forgotPasswordReq = createAsyncThunk(
+  "auth/forgotPasswordReq",
+  async (email) => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5050/api/v1/auth/forgot-password`,
+        { email: email },
+        {
+          withCredentials: true,
+        }
+      );
+
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+// reset password
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async (data) => {
+    try {
+      const res = await axios.patch(
+        `http://localhost:5050/api/v1/auth/reset-password`,
+        data,
+        { withCredentials: true }
+      );
+
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);

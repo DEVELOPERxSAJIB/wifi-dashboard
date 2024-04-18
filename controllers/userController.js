@@ -15,9 +15,9 @@ const bcrypt = require("bcryptjs");
  */
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
+    const user = await User.find();
 
-    if (users.length == 0) {
+    if (user.length == 0) {
       return errorResponse(res, {
         statusCode: 404,
         message: "Users not found",
@@ -28,7 +28,7 @@ const getAllUsers = async (req, res, next) => {
       statusCode: 200,
       message: "All users found",
       payload: {
-        users,
+        user,
       },
     });
   } catch (error) {
