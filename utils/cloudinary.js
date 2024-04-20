@@ -24,16 +24,16 @@ const cloudUploadAvatar = async (avaterInfo) => {
   return results;
 };
 
+// delete avatar
+const cloudDeleteAvatar = async (publicId) => {
+  await cloudinary.v2.uploader.destroy(publicId);
+};
+
 // documnets upload
 const cloudUploadDocumnets = async (docArray) => {
   const results = await Promise.all(
     docArray?.map(async (file) => {
-      const result = await cloudinary.uploader.upload(file.path, {
-
-        resource_type : "auto",
-        allowed_formats: ["pdf", "doc", "docx", "png", "jpg", "jpeg"],
-        
-      });
+      const result = await cloudinary.uploader.upload(file.path);
       return result;
     })
   );
@@ -53,4 +53,5 @@ module.exports = {
   planIconDelete,
   cloudUploadAvatar,
   cloudUploadDocumnets,
+  cloudDeleteAvatar,
 };

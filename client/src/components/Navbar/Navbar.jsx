@@ -1,6 +1,10 @@
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { getLoggedInUser } from "../../features/auth/authSlice";
 
 const Navbar = () => {
+
+  const { user } = useSelector(getLoggedInUser)
 
   return (
     <>
@@ -21,7 +25,7 @@ const Navbar = () => {
             <div className="nav-item navbar-search-wrapper mb-0">
               <a className="nav-item nav-link search-toggler d-flex align-items-center px-0">
                 <span className="d-none d-md-inline-block text-muted">
-                  Hi Name, Welcome to dashboard
+                  Hi {user?.name}, Welcome to dashboard
                 </span>
               </a>
             </div>
@@ -158,9 +162,10 @@ const Navbar = () => {
               >
                 <div className="avatar avatar-online">
                   <img
-                    src="../../src/assets/img/avatars/1.png"
+                    src={user ? user.avatar?.url :"../../src/assets/img/avatars/1.png"}
                     alt
-                    className="h-auto rounded-circle"
+                    className="h-full rounded-circle"
+                    style={{objectFit : "cover"}}
                   />
                 </div>
               </a>

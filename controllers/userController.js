@@ -83,6 +83,7 @@ const createUser = async (req, res, next) => {
 
       // documents upload
       const doc = req.files?.userDocuments;
+      console.log("pc files",doc);
       if (doc) {
         uploadedDocuements = await cloudUploadDocumnets(doc);
       }
@@ -94,7 +95,7 @@ const createUser = async (req, res, next) => {
       uploadedDocuements.forEach((file) => {
         documents.push({
           public_id: file?.public_id,
-          url: file?.url,
+          url: file?.secure_url,
         });
       });
     }

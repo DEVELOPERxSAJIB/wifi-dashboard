@@ -2,8 +2,6 @@ import Layout from "../components/Layout/Layout";
 import Customer from "../pages/Customer/Customer";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Employee from "../pages/Employee/Employee";
-import Profile from "../pages/Customer/Profile";
-import Account from "../pages/Employee/Account";
 import CreateEmployee from "../pages/Employee/CreateEmployee";
 import CreateCustomer from "../pages/Customer/CreateCustomer";
 import Plans from "../pages/Plans/Plans";
@@ -12,6 +10,9 @@ import UpdatePlan from "../pages/Plans/UpdatePlan";
 import Logout from "../pages/auth/Logout";
 import PrivateGuard from "./PrivateGuard";
 import Settings from "../pages/auth/Settings/Settings";
+import Profile from "../pages/Employee/Profile";
+import Account from "../pages/Customer/Account";
+import NotFound from "../pages/NotFound/NotFound";
 
 export const privateRoutes = [
   {
@@ -33,7 +34,7 @@ export const privateRoutes = [
             element: <Employee />,
           },
           {
-            path: "/profile",
+            path: "/employees/profile/:id",
             element: <Profile />,
           },
           {
@@ -71,5 +72,9 @@ export const privateRoutes = [
         ],
       },
     ],
+  },
+  {
+    path: "/*",
+    element: <NotFound />,
   },
 ];

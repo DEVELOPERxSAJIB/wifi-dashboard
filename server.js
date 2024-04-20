@@ -10,6 +10,7 @@ const { errorResponse } = require("./controllers/responseController.js");
 const authRouter = require("./route/authRouter.js");
 const userRouter = require("./route/userRouter.js");
 const planRouter = require("./route/planRouter.js");
+const customerRouter = require("./route/customerRouter.js");
 
 // initialization
 const app = express();
@@ -23,7 +24,7 @@ const limiter = rateLimit({
 });
 
 // set middlewares
-app.use(limiter);
+// app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -44,6 +45,7 @@ app.use(express.static("public"));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/plan", planRouter);
+app.use("/api/v1/customer", customerRouter);
 
 // client error handling
 app.use((req, res, next) => {

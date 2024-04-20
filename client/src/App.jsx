@@ -6,6 +6,12 @@ import { useDispatch } from "react-redux";
 import { getAllPlans } from "./features/plan/planApiSlice";
 import { ToastContainer } from "react-toastify";
 import { loggedinUserInfo } from "./features/auth/authApiSlice";
+import { pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url,
+).toString();
 
 function App() {
   const dispatch = useDispatch();

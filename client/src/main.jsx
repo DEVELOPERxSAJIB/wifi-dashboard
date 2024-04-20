@@ -1,11 +1,11 @@
 import "./index.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import { store } from "./app/store.jsx";
-import { Provider } from "react-redux"
+import { Provider } from "react-redux";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

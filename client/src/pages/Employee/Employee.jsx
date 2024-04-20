@@ -5,9 +5,9 @@ const Employee = () => {
   return (
     <>
       <div className="container-xxl flex-grow-1 container-p-y">
-        <div className="d-flex justify-content-between">
+        <div className="d-flex justify-content-between align-items-center">
         <h4 className="py-3 mb-2">
-          <span className="text-muted fw-light"></span> All Employees
+          <span className="text-muted fw-light"></span>Employees
         </h4>
         <Link to={"/create-employee"} >
             

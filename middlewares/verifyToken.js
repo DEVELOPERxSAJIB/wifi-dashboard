@@ -6,7 +6,9 @@ const tokenVerify = (req, res, next) => {
   const accessToken = req.cookies.accessToken;
 
   if (!accessToken) {
-    return res.status(400).json({ message: "Unauthorized" });
+    return res
+      .status(400)
+      .json({ message: "You are not authorized to access this resource" });
   }
 
   jwt.verify(
