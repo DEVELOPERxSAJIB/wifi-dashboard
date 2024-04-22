@@ -70,16 +70,16 @@ const createPlan = async (req, res, next) => {
   try {
     const { name, price, badge, mbps } = req.body;
 
-    // icon uploding to cloud storage
-    let icon = null;
-    if (req.file) {
-      icon = await planIconUpload(req.file);
-    }
-
     // exist plan check
     const existingPlan = await Plan.findOne({ name });
     if (existingPlan) {
       throw createError(400, "This plan already exists");
+    }
+
+    // icon uploding to cloud storage
+    let icon = null;
+    if (req.file) {
+      icon = await planIconUpload(req.file);
     }
 
     // create new plan

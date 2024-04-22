@@ -32,7 +32,7 @@ const Table = () => {
     {
       name: "Employee Id",
       selector: (row) => row._id,
-      minWidth: "280px"
+      minWidth: "280px",
     },
     {
       name: "Name",
@@ -58,11 +58,7 @@ const Table = () => {
     {
       name: "Remark",
       selector: (row) =>
-        row.remark ? (
-          <span className="text-success">{row.remark}</span>
-        ) : (
-          null
-        ),
+        row.remark ? <span className="text-success">{row.remark}</span> : null,
     },
     {
       name: "Role",
@@ -107,16 +103,39 @@ const Table = () => {
     // For simplicity, I'm just logging the selected rows
   };
 
+  const [search, setSearch] = useState("");
+  const [filteredEmployee, setFilteredEmployee] = useState([]);
+
   useEffect(() => {
     dispatch(getAllEmployees());
   }, [dispatch]);
+
+  useEffect(() => {
+    setFilteredEmployee(employees);
+  }, [employees]);
+
+  useEffect(() => {
+    const result = employees.filter((data) => {
+      const searchToLowerCase = search.toLowerCase();
+      return (
+        data.name.toLowerCase().includes(searchToLowerCase) ||
+        data._id.toLowerCase().includes(searchToLowerCase) ||
+        data.remark?.toLowerCase().includes(searchToLowerCase) ||
+        data.mobile.toLowerCase().includes(searchToLowerCase) ||
+        data.email.toLowerCase().includes(searchToLowerCase) ||
+        data.address?.city.toLowerCase().includes(searchToLowerCase)
+      );
+    });
+
+    setFilteredEmployee(result);
+  }, [employees, search]);
 
   return (
     <>
       <div className="d-flex justify-content-end py-3"></div>
       <CustomDataTable
         columns={columns}
-        data={employees}
+        data={filteredEmployee}
         striped
         pagination
         highlightOnHover
@@ -126,8 +145,14 @@ const Table = () => {
         subHeader
         subHeaderComponent={
           <>
+            <input
+              type="text"
+              className="form-control w-25"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             {selectedRows.length > 0 && (
-              <button className="btn btn-primary me-2">
+              <button className="btn btn-primary mx-2">
                 <FaFileExport />
               </button>
             )}

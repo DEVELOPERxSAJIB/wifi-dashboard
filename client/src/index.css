@@ -99,13 +99,12 @@ ul {
   top: 10px;
   right: 10px;
   opacity: 0.3;
-  transition: all ease-out .3s;
+  transition: all ease-out 0.3s;
 }
 .avartar-preview-img:hover .image-remove-icon {
   opacity: 1;
-  transition: all ease-in .3s;
+  transition: all ease-in 0.3s;
 }
-
 
 .visually-hidden {
   position: absolute;
@@ -116,4 +115,13 @@ ul {
   margin: -1px;
   padding: 0;
   border: 0;
+}
+
+.pdf-div {
+  padding: 30px;
+  background-color: #dedede;
+  margin-top: 50px;
+  overflow-y: scroll;
+  height: 40vh !important;
+  object-fit: cover;
 }

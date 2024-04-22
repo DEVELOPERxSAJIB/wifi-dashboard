@@ -1,7 +1,95 @@
+
 const Dashboard = () => {
   return (
     <>
       <div className="container-xxl flex-grow-1 container-p-y">
+        <div className="row g-4 mb-4">
+          <div className="col-sm-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <div className="d-flex align-items-start justify-content-between">
+                  <div className="content-left">
+                    <span>Session</span>
+                    <div className="d-flex align-items-center my-2">
+                      <h3 className="mb-0 me-2">21,459</h3>
+                      <p className="text-success mb-0">(+29%)</p>
+                    </div>
+                    <p className="mb-0">Total Users</p>
+                  </div>
+                  <div className="avatar">
+                    <span className="avatar-initial rounded bg-label-primary">
+                      <i className="ti ti-user ti-sm" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-sm-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <div className="d-flex align-items-start justify-content-between">
+                  <div className="content-left">
+                    <span>Paid Users</span>
+                    <div className="d-flex align-items-center my-2">
+                      <h3 className="mb-0 me-2">4,567</h3>
+                      <p className="text-success mb-0">(+18%)</p>
+                    </div>
+                    <p className="mb-0">Last week analytics</p>
+                  </div>
+                  <div className="avatar">
+                    <span className="avatar-initial rounded bg-label-danger">
+                      <i className="ti ti-user-plus ti-sm" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-sm-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <div className="d-flex align-items-start justify-content-between">
+                  <div className="content-left">
+                    <span>Active Users</span>
+                    <div className="d-flex align-items-center my-2">
+                      <h3 className="mb-0 me-2">19,860</h3>
+                      <p className="text-danger mb-0">(-14%)</p>
+                    </div>
+                    <p className="mb-0">Last week analytics</p>
+                  </div>
+                  <div className="avatar">
+                    <span className="avatar-initial rounded bg-label-success">
+                      <i className="ti ti-user-check ti-sm" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-sm-6 col-xl-3">
+            <div className="card">
+              <div className="card-body">
+                <div className="d-flex align-items-start justify-content-between">
+                  <div className="content-left">
+                    <span>Pending Users</span>
+                    <div className="d-flex align-items-center my-2">
+                      <h3 className="mb-0 me-2">237</h3>
+                      <p className="text-success mb-0">(+42%)</p>
+                    </div>
+                    <p className="mb-0">Last week analytics</p>
+                  </div>
+                  <div className="avatar">
+                    <span className="avatar-initial rounded bg-label-warning">
+                      <i className="ti ti-user-exclamation ti-sm" />
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="row">
           {/* Website Analytics */}
           <div className="col-lg-6 mb-4">

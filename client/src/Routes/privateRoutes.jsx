@@ -13,6 +13,7 @@ import Settings from "../pages/auth/Settings/Settings";
 import Profile from "../pages/Employee/Profile";
 import Account from "../pages/Customer/Account";
 import NotFound from "../pages/NotFound/NotFound";
+import UpdateCustomer from "../pages/Customer/UpdateCustomer";
 
 export const privateRoutes = [
   {
@@ -26,10 +27,6 @@ export const privateRoutes = [
             element: <Dashboard />,
           },
           {
-            path: "/customers",
-            element: <Customer />,
-          },
-          {
             path: "/employees",
             element: <Employee />,
           },
@@ -38,16 +35,24 @@ export const privateRoutes = [
             element: <Profile />,
           },
           {
-            path: "/account",
-            element: <Account />,
-          },
-          {
             path: "/create-employee",
             element: <CreateEmployee />,
           },
           {
+            path: "/customers",
+            element: <Customer />,
+          },
+          {
             path: "/create-customer",
             element: <CreateCustomer />,
+          },
+          {
+            path: "/customers/account/:id",
+            element: <Account />,
+          },
+          {
+            path: "/customers/update-customer/:id",
+            element: <UpdateCustomer />,
           },
           {
             path: "/packages",

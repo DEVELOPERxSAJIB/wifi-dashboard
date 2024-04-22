@@ -1,12 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoTrash } from "react-icons/io5";
 import { countries } from "countries-list";
-import { Document, Page } from "react-pdf";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllPlans } from "../../features/plan/planApiSlice";
+import { gettingAllPlans } from "../../features/plan/planSlice";
+import {
+  createNewCustomer,
+  getSingleCustomer,
+} from "../../features/customer/customerApiSlice";
+import {
+  gettingSingleCustomer,
+  setMessageEmpty,
+} from "../../features/customer/customerSlice";
+import { alertMessage } from "../../utils/Alerts/alertMessage";
+import { useNavigate, useParams } from "react-router-dom";
 
-const CreateEmployee = () => {
+const UpdateCustomer = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { id } = useParams();
+
+  const { customers, error, message } = useSelector(gettingSingleCustomer);
+  const { plans } = useSelector(gettingAllPlans);
+
   const countriesList = Object.values(countries);
 
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState({
+    public_id : customers?.image?.public_id,
+    url : customers?.image?.url,
+  });
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   const handleAvatarChange = (e) => {
@@ -17,64 +39,120 @@ const CreateEmployee = () => {
     }
   };
 
-  const [documents, setDocuments] = useState([]);
-  console.log(documents);
-
-  const handleDocumentChange = (e) => {
-    const files = e.target.files;
-    if (files.length > 0) {
-      setDocuments([...files]);
-    }
-  };
-
-  const [numPages, setNumPages] = useState();
-  const [pageNumber, setPageNumber] = useState(1);
-
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
-  }
-
   // remove avatart & avatar preview
   const handleRemovePreviewAvatar = () => {
     setAvatarPreview(null);
     setAvatar(null);
   };
 
-  const handleRemoveDocument = () => {};
+  // get form data
+  const [input, setInput] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    package: "",
+    remark: "",
+    street: "",
+    city: "",
+    postalCode: "",
+    country: "",
+  });
+  const [gender, setGender] = useState(
+    customers?.gender ? customers?.gender : ""
+  );
 
-  // const handleImageUrlInput = (event) => {
-  //   setImageUrl(event.target.value);
-  // };
+  const handleInputChange = (e) => {
+    setInput((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-  // const handleFormSubmit = (event) => {
-  //   event.preventDefault();
-  // };
+  const handleSubmitForm = (e) => {
+    e.preventDefault();
+
+    const form_data = new FormData();
+    form_data.append("name", input.name);
+    form_data.append("email", input.email);
+    form_data.append("mobile", input.mobile);
+    form_data.append("package", input.package);
+    form_data.append("remark", input.remark);
+    form_data.append("street", input.street);
+    form_data.append("city", input.city);
+    form_data.append("postalCode", input.postalCode);
+    form_data.append("country", input.country);
+    form_data.append("gender", gender);
+
+    if (avatar) {
+      form_data.append("customerPicture", avatar);
+    }
+
+    dispatch(createNewCustomer(form_data));
+  };
+
+  useEffect(() => {
+    dispatch(getSingleCustomer(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    dispatch(getAllPlans);
+  }, [dispatch]);
+
+  useEffect(() => {
+    setInput({
+      name: customers?.name,
+      email: customers?.email,
+      mobile: customers?.mobile,
+      package: customers?.package,
+      remark: customers?.remark,
+      street: customers?.address?.street,
+      city: customers?.address?.city,
+      postalCode: customers?.address?.postalCode,
+      country: customers?.address?.county,
+    });
+    setAvatarPreview(
+       customers?.image?.url ? customers?.image?.url : "https://static.vecteezy.com/system/resources/thumbnails/022/876/359/small_2x/social-media-user-3d-cartoon-illustration-speech-bubble-with-internet-icon-png.png",
+    );
+  }, [customers, id]);
+
+  useEffect(() => {
+    if (message) {
+      alertMessage({ type: "success", message: message });
+      dispatch(setMessageEmpty());
+      navigate("/customers");
+    }
+
+    if (error) {
+      alertMessage({ type: "error", message: error });
+      dispatch(setMessageEmpty());
+    }
+  }, [dispatch, error, message, navigate]);
 
   return (
     <>
       <div className="container-xxl flex-grow-1 container-p-y">
-        <div className="app-ecommerce">
-          {/* Add Product */}
+        <form onSubmit={handleSubmitForm}>
           <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
             <div className="d-flex flex-column justify-content-center">
               <h4 className="py-3 mb-0">
-                <span className="text-muted fw-light">Employees /</span>
-                <span className="fw-medium"> Add Employee</span>
+                <span className="text-muted fw-light">Customer /</span>
+                <span className="fw-medium"> Update customer</span>
               </h4>
             </div>
             <div className="d-flex align-content-center flex-wrap gap-3">
               <button type="submit" className="btn btn-primary">
-                Publish Profile
+                Update Profile
               </button>
             </div>
           </div>
+
           <div className="row">
             {/* First column*/}
             <div className="col-12 col-lg-8">
               {/* Profile Information */}
               <div className="card mb-4">
                 <div className="card-header">
-                  <h5 className="card-tile mb-0">User information</h5>
+                  <h5 className="card-tile mb-0">Customer information</h5>
                 </div>
                 <div className="card-body">
                   <div className="mb-3">
@@ -86,6 +164,9 @@ const CreateEmployee = () => {
                       className="form-control"
                       id="name"
                       placeholder="User name"
+                      name="name"
+                      value={input.name}
+                      onChange={handleInputChange}
                     />
                   </div>
                   <div className="row mb-3">
@@ -98,6 +179,9 @@ const CreateEmployee = () => {
                         className="form-control"
                         id="Email"
                         placeholder="Email"
+                        name="email"
+                        value={input.email}
+                        onChange={handleInputChange}
                       />
                     </div>
                     <div className="col">
@@ -109,30 +193,45 @@ const CreateEmployee = () => {
                         className="form-control"
                         id="Mobile"
                         placeholder="Phone Number"
+                        name="mobile"
+                        value={input.mobile}
+                        onChange={handleInputChange}
                       />
                     </div>
                   </div>
                   <div className="row mb-3">
                     <div className="col">
                       <label className="form-label" htmlFor="Salary">
-                        Salary
+                        Package
                       </label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        id="Salary"
-                        placeholder="Monthly salary"
-                      />
+                      <select
+                        name="package"
+                        value={input.package}
+                        onChange={handleInputChange}
+                        className="select2 form-select"
+                      >
+                        <option disabled value={""}>
+                          - select a plan -
+                        </option>
+                        {plans?.map((plan) => (
+                          <option key={plan._id} value={plan._id}>
+                            {plan.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="col">
                       <label className="form-label" htmlFor="Remark">
                         Remark
                       </label>
                       <input
-                        type="text"
                         className="form-control"
+                        type="text"
                         id="Remark"
                         placeholder="Nick Name"
+                        name="remark"
+                        value={input.remark}
+                        onChange={handleInputChange}
                       />
                     </div>
                   </div>
@@ -155,6 +254,7 @@ const CreateEmployee = () => {
                               className="nav-link py-2 active"
                               data-bs-toggle="tab"
                               data-bs-target="#restock"
+                              onClick={(e) => e.preventDefault()}
                             >
                               <i className="ti ti-box me-2" />
                               <span className="align-middle">Avatar</span>
@@ -165,6 +265,7 @@ const CreateEmployee = () => {
                               className="nav-link py-2"
                               data-bs-toggle="tab"
                               data-bs-target="#shipping"
+                              onClick={(e) => e.preventDefault()}
                             >
                               <i className="ti ti-car me-2" />
                               <span className="align-middle">Gander</span>
@@ -253,8 +354,11 @@ const CreateEmployee = () => {
                               <input
                                 className="form-check-input"
                                 type="radio"
-                                name="gander"
+                                name="gender"
                                 id="male"
+                                value={gender}
+                                checked={gender === "male"}
+                                onChange={(e) => setGender(e.target.value)}
                               />
                               <label
                                 className="form-check-label"
@@ -270,8 +374,11 @@ const CreateEmployee = () => {
                               <input
                                 className="form-check-input"
                                 type="radio"
-                                name="gander"
+                                name="gender"
                                 id="female"
+                                value={gender}
+                                checked={gender === "female"}
+                                onChange={(e) => setGender(e.target.value)}
                               />
                               <label
                                 className="form-check-label"
@@ -287,8 +394,11 @@ const CreateEmployee = () => {
                               <input
                                 className="form-check-input"
                                 type="radio"
-                                name="gander"
+                                name="gender"
                                 id="others"
+                                value={gender}
+                                checked={gender === "others"}
+                                onChange={(e) => setGender(e.target.value)}
                               />
                               <label
                                 className="form-check-label"
@@ -308,138 +418,10 @@ const CreateEmployee = () => {
                 </div>
               </div>
               {/* Avatar  & Gander */}
-              {/* Documents */}
-              <div className="card mb-4">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <h5 className="mb-0 card-title">Documents</h5>
-                </div>
-                <div className="card-body">
-                  <div className="dropzone needsclick" id="dropzone-basic">
-                    <div
-                      className="tab-pane fade show active"
-                      id="restock"
-                      role="tabpanel"
-                    >
-                      <div
-                        style={
-                          documents.length > 0
-                            ? { height: "auto", overflowY: "scroll" }
-                            : {
-                                height: "250px",
-                                borderRadius: "10px",
-                                background: "#F8F7FA",
-                                overflowY: "scroll",
-                              }
-                        }
-                        className="row d-flex border border-primary border-2 border-dashed justify-content-center align-items-center"
-                      >
-                        <div
-                          style={{
-                            overflowY: "scroll",
-                          }}
-                          className="col-12 col-sm-9 text-center d-flex"
-                        >
-                          {documents?.length > 0 ? (
-                            <>
-                              {documents.map((file, index) => (
-                                <div
-                                  key={index}
-                                  className="position-relative avartar-preview-img"
-                                >
-                                  <span
-                                    onClick={() => handleRemoveDocument(index)}
-                                    className="badge bg-danger cursor-pointer bg-glow image-remove-icon"
-                                  >
-                                    <IoTrash />
-                                  </span>
-                                  {file.type === "application/pdf" ? (
-                                    <div className="pdf-div">
-                                      <p>
-                                        Page {pageNumber} of {numPages}
-                                      </p>
-                                      <Document
-                                        file={file}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                      >
-                                        <Page pageNumber={pageNumber} />
-                                      </Document>
-                                    </div>
-                                  ) : (
-                                    <img
-                                      style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        padding: "5px 0",
-                                      }}
-                                      src={URL.createObjectURL(file)}
-                                      alt=""
-                                    />
-                                  )}
-                                </div>
-                              ))}
-                            </>
-                          ) : (
-                            <label htmlFor="fileInput">
-                              <input
-                                className="note needsclick btn bg-label-primary d-inline"
-                                id="fileInput"
-                                multiple
-                                type="file"
-                                accept="image/*, .pdf"
-                                onChange={handleDocumentChange}
-                              />
-                            </label>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Documents */}
             </div>
             {/* /Second column */}
             {/* Second column */}
             <div className="col-12 col-lg-4">
-              {/* password Card */}
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="card-title mb-0">Security</h5>
-                </div>
-                <div className="card-body">
-                  <div className="mb-3">
-                    <label className="form-label" htmlFor="password">
-                      Create a password
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="password"
-                      placeholder="Password"
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label" htmlFor="cpassword">
-                      Confirm password
-                    </label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      id="cpassword"
-                      placeholder="Confirm password"
-                    />
-                  </div>
-                  {/* Charge tax check box */}
-
-                  {/* Instock switch */}
-                  <div className="d-flex justify-content-between align-items-center border-top pt-3">
-                    <h6 className="mb-0">
-                      Password should at least 6 character long
-                    </h6>
-                  </div>
-                </div>
-              </div>
-              {/* /password Card */}
               {/* Address Card */}
               <div className="card mb-4">
                 <div className="card-header">
@@ -456,6 +438,9 @@ const CreateEmployee = () => {
                       id="street"
                       className="form-control"
                       placeholder="provide street name"
+                      name="street"
+                      value={input.street}
+                      onChange={handleInputChange}
                     />
                   </div>
                   {/* City */}
@@ -471,6 +456,9 @@ const CreateEmployee = () => {
                       id="city"
                       className="form-control"
                       placeholder="provide city name"
+                      name="city"
+                      value={input.city}
+                      onChange={handleInputChange}
                     />
                   </div>
                   {/* Zip Code */}
@@ -483,6 +471,9 @@ const CreateEmployee = () => {
                       id="zipcode"
                       className="form-control"
                       placeholder="Zipcode of city"
+                      name="postalCode"
+                      value={input.postalCode}
+                      onChange={handleInputChange}
                     />
                   </div>
                   {/* Country */}
@@ -494,8 +485,13 @@ const CreateEmployee = () => {
                       id="country"
                       className="select2 form-select"
                       data-placeholder="Published"
-                      defaultValue="Bangladesh"
+                      name="country"
+                      value={input.country}
+                      onChange={handleInputChange}
                     >
+                      <option disabled value={""}>
+                        - select a country -
+                      </option>
                       {countriesList &&
                         countriesList.map((country) => (
                           <option key={country.name} value={country.name}>
@@ -510,10 +506,10 @@ const CreateEmployee = () => {
             </div>
             {/* /Second column */}
           </div>
-        </div>
+        </form>
       </div>
     </>
   );
 };
 
-export default CreateEmployee;
+export default UpdateCustomer;

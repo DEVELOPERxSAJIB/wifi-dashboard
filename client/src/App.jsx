@@ -1,5 +1,5 @@
-import { RouterProvider } from "react-router-dom";
 import "./App.css";
+import { RouterProvider } from "react-router-dom";
 import router from "./Routes/router";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";

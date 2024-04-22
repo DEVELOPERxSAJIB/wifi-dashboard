@@ -11,7 +11,9 @@ const { successResponse } = require("./responseController");
  */
 const getAllCustomer = async (req, res, next) => {
   try {
-    const customer = await Customer.find().populate("package");
+    const customer = await Customer.find()
+      .populate("package")
+      .sort({ createdAt: -1 });
 
     if (customer.length <= 0) {
       throw createError(400, "No customers found");
@@ -19,7 +21,35 @@ const getAllCustomer = async (req, res, next) => {
 
     successResponse(res, {
       statusCode: 200,
-      message: "Plan created successfully",
+      message: "All customer fetched",
+      payload: {
+        customer,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC get single customers
+ * @ROUTE /api/v1/customer/:id
+ * @method GET
+ * @access PRIVATE
+ */
+const singleCustomer = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const customer = await Customer.findById(id).populate("package");
+
+    if (!customer) {
+      throw createError(400, "No customers found");
+    }
+
+    successResponse(res, {
+      statusCode: 200,
+      message: "Single customer fetched",
       payload: {
         customer,
       },
@@ -37,14 +67,17 @@ const getAllCustomer = async (req, res, next) => {
  */
 const createCustomer = async (req, res, next) => {
   try {
-    const { name, mobile, remark, street, city, postalCode, country, package } =
-      req.body;
-
-    // icon uploding to cloud storage
-    let avatar = null;
-    if (req.file) {
-      avatar = await cloudUploadAvatar(req.file);
-    }
+    const {
+      name,
+      mobile,
+      email,
+      remark,
+      street,
+      city,
+      postalCode,
+      country,
+      package,
+    } = req.body;
 
     // exist plan check
     const existingPlan = await Customer.findOne({ mobile });
@@ -55,9 +88,16 @@ const createCustomer = async (req, res, next) => {
       );
     }
 
+    // icon uploding to cloud storage
+    let avatar = null;
+    if (req.file) {
+      avatar = await cloudUploadAvatar(req.file);
+    }
+
     const data = {
       name,
       mobile,
+      email,
       remark,
       package,
       address: {
@@ -67,8 +107,8 @@ const createCustomer = async (req, res, next) => {
         country,
       },
       image: {
-        public_id: avatar?.public_id,
-        url: avatar?.secure_url,
+        public_id: avatar ? avatar?.public_id : null,
+        url: avatar ? avatar?.secure_url : null,
       },
     };
 
@@ -97,8 +137,17 @@ const createCustomer = async (req, res, next) => {
 const updateCustomer = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, mobile, remark, package, street, city, postalCode, country } =
-      req.body;
+    const {
+      name,
+      mobile,
+      email,
+      remark,
+      package,
+      street,
+      city,
+      postalCode,
+      country,
+    } = req.body;
 
     // exist customer check
     const existingCustomer = await Customer.findById(id);
@@ -122,6 +171,7 @@ const updateCustomer = async (req, res, next) => {
       {
         name,
         mobile,
+        email,
         remark,
         package,
         street,
@@ -129,7 +179,9 @@ const updateCustomer = async (req, res, next) => {
         postalCode,
         country,
         image: {
-          public_id: avatar ? avatar?.public_id : existingCustomer.image.public_id,
+          public_id: avatar
+            ? avatar?.public_id
+            : existingCustomer.image.public_id,
           url: avatar ? avatar?.secure_url : existingCustomer?.image.url,
         },
       },
@@ -141,7 +193,7 @@ const updateCustomer = async (req, res, next) => {
       statusCode: 200,
       message: "Customer details updated",
       payload: {
-        customer : updatedCustomer,
+        customer: updatedCustomer,
       },
     });
   } catch (error) {
@@ -191,4 +243,5 @@ module.exports = {
   createCustomer,
   deleteCustomer,
   updateCustomer,
+  singleCustomer,
 };

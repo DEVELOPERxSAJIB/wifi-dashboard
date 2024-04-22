@@ -12,6 +12,16 @@ const customerSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
+    gender: {
+      type: String,
+      enum: ["female", "male", "others", "undefined"],
+      default: "undefined",
+    },
+    email: {
+      type: String,
+      trim: true,
+      default : null,
+    },
     package: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",

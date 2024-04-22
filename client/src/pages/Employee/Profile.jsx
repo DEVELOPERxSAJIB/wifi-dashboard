@@ -17,7 +17,7 @@ const Profile = () => {
   // get single user data
   const [singleEmployee, setSingleEmployee] = useState();
   useEffect(() => {
-    const employee = employees.find((data) => data._id === id);
+    const employee = employees.find((data) => data?._id === id);
     setSingleEmployee(employee);
   }, [employees, id]);
 
@@ -55,8 +55,8 @@ const Profile = () => {
                   <div className="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
                     <img
                       src={
-                        singleEmployee.avatar
-                          ? singleEmployee.avatar?.url
+                        singleEmployee?.avatar
+                          ? singleEmployee?.avatar?.url
                           : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
                       }
                       alt="user image"
@@ -216,24 +216,23 @@ const Profile = () => {
                           {singleEmployee?.documents?.map((item) => {
                             return (
                               <div
-                                key={item._id}
+                                key={item?._id}
                                 className="col-sm-6 col-md-4 col-lg-3 item"
                               >
-                                {item.url.toLowerCase().endsWith(".pdf") ? (
+                                {item?.url?.toLowerCase().endsWith(".pdf") ? (
                                   <>
-                                    console.log(item.url)
                                     <div>
-                                      <Document pdf={item.url}>
+                                      <Document pdf={item?.url}>
                                         <Page pageNumber={1} />
                                       </Document>
                                     </div>
                                   </>
                                 ) : (
-                                  <a href={item.url} data-lightbox="photos">
+                                  <a href={item?.url} data-lightbox="photos">
                                     <img
                                       className="img-fluid"
-                                      src={item.url}
-                                      alt={item.name}
+                                      src={item?.url}
+                                      alt={item?.name}
                                     />
                                   </a>
                                 )}

@@ -22,7 +22,6 @@ const UpdatePlan = () => {
     const plan = plans.find((plan) => plan._id === id);
     setSinglePlan(plan);
   }, [id, plans]);
-  console.log(singlePlan);
 
   // get data
   const [input, setInput] = useState({

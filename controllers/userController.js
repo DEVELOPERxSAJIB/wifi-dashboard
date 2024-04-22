@@ -15,7 +15,7 @@ const bcrypt = require("bcryptjs");
  */
 const getAllUsers = async (req, res, next) => {
   try {
-    const user = await User.find();
+    const user = await User.find().sort({ createdAt: -1 });
 
     if (user.length == 0) {
       return errorResponse(res, {

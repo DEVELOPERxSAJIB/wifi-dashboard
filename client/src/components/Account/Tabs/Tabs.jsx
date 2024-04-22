@@ -1,7 +1,7 @@
-import Billing from "../Billing/Billing";
-import Security from "../Security/Security";
+import PropTypes from "prop-types";
 
-const Tabs = () => {
+// eslint-disable-next-line react/prop-types
+const Tabs = ({ data }) => {
   return (
     <>
       <div>
@@ -16,36 +16,6 @@ const Tabs = () => {
               role="tab"
               aria-controls="pills-home"
               aria-selected="true"
-            >
-              <i className="ti ti-user-check ti-xs me-1" />
-              Account
-            </button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button
-              className="nav-link"
-              id="pills-profile-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#pills-profile"
-              type="button"
-              role="tab"
-              aria-controls="pills-profile"
-              aria-selected="false"
-            >
-              <i className="ti ti-lock ti-xs me-1" />
-              Security
-            </button>
-          </li>
-          <li className="nav-item" role="presentation">
-            <button
-              className="nav-link"
-              id="pills-contact-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#pills-contact"
-              type="button"
-              role="tab"
-              aria-controls="pills-contact"
-              aria-selected="false"
             >
               <i className="ti ti-currency-dollar me-1 ti-xs"></i>Billing &
               Plans
@@ -64,176 +34,69 @@ const Tabs = () => {
             aria-labelledby="pills-home-tab"
           >
             <div className="card mb-4">
-              <h5 className="card-header">User Activity Timeline</h5>
-              <div className="card-body pb-0">
-                <ul className="timeline mb-0">
-                  <li className="timeline-item timeline-item-transparent">
-                    <span className="timeline-point timeline-point-primary" />
-                    <div className="timeline-event">
-                      <div className="timeline-header mb-1">
-                        <h6 className="mb-0">12 Invoices have been paid</h6>
-                        <small className="text-muted">12 min ago</small>
-                      </div>
-                      <p className="mb-2">
-                        Invoices have been paid to the company
-                      </p>
-                      <div className="d-flex">
-                        <a href="javascript:void(0)" className="me-3">
-                          <img
-                            src="../../assets/img/icons/misc/pdf.png"
-                            alt="PDF image"
-                            width={15}
-                            className="me-2"
-                          />
-                          <span className="fw-medium text-heading">
-                            invoices.pdf
-                          </span>
-                        </a>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="timeline-item timeline-item-transparent">
-                    <span className="timeline-point timeline-point-warning" />
-                    <div className="timeline-event">
-                      <div className="timeline-header mb-1">
-                        <h6 className="mb-0">Client Meeting</h6>
-                        <small className="text-muted">45 min ago</small>
-                      </div>
-                      <p className="mb-2">Project meeting with john @10:15am</p>
-                      <div className="d-flex flex-wrap">
-                        <div className="avatar me-3">
-                          <img
-                            src="../../assets/img/avatars/3.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <div>
-                          <h6 className="mb-0">Lester McCarthy (Client)</h6>
-                          <small>CEO of Pixinvent</small>
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="timeline-item timeline-item-transparent">
-                    <span className="timeline-point timeline-point-info" />
-                    <div className="timeline-event">
-                      <div className="timeline-header mb-1">
-                        <h6 className="mb-0">
-                          Create a new project for client
-                        </h6>
-                        <small className="text-muted">2 Day Ago</small>
-                      </div>
-                      <p className="mb-2">5 team members in a project</p>
-                      <div className="d-flex align-items-center avatar-group">
-                        <div
-                          className="avatar pull-up"
-                          data-bs-toggle="tooltip"
-                          data-popup="tooltip-custom"
-                          data-bs-placement="top"
-                          title="Vinnie Mostowy"
-                        >
-                          <img
-                            src="../../assets/img/avatars/5.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <div
-                          className="avatar pull-up"
-                          data-bs-toggle="tooltip"
-                          data-popup="tooltip-custom"
-                          data-bs-placement="top"
-                          title="Marrie Patty"
-                        >
-                          <img
-                            src="../../assets/img/avatars/12.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <div
-                          className="avatar pull-up"
-                          data-bs-toggle="tooltip"
-                          data-popup="tooltip-custom"
-                          data-bs-placement="top"
-                          title="Jimmy Jackson"
-                        >
-                          <img
-                            src="../../assets/img/avatars/9.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <div
-                          className="avatar pull-up"
-                          data-bs-toggle="tooltip"
-                          data-popup="tooltip-custom"
-                          data-bs-placement="top"
-                          title="Kristine Gill"
-                        >
-                          <img
-                            src="../../assets/img/avatars/6.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                        <div
-                          className="avatar pull-up"
-                          data-bs-toggle="tooltip"
-                          data-popup="tooltip-custom"
-                          data-bs-placement="top"
-                          title="Nelson Wilson"
-                        >
-                          <img
-                            src="../../assets/img/avatars/4.png"
-                            alt="Avatar"
-                            className="rounded-circle"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </li>
-                  <li className="timeline-item timeline-item-transparent border-transparent">
-                    <span className="timeline-point timeline-point-success" />
-                    <div className="timeline-event">
-                      <div className="timeline-header mb-1">
-                        <h6 className="mb-0">Design Review</h6>
-                        <small className="text-muted">5 days Ago</small>
-                      </div>
-                      <p className="mb-0">
-                        Weekly review of freshly prepared design for our new
-                        app.
-                      </p>
-                    </div>
-                  </li>
-                </ul>
+              <h5 className="card-header">Package</h5>
+              <div className="card-body pb-5">
+                <div className="d-flex gap-4">
+                  <div
+                    className="img-area border border-primary border-2 solid "
+                    style={{ width: "50%" }}
+                  >
+                    <img
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        padding: "10px",
+                      }}
+                      src={
+                        data?.icon?.url !== null
+                          ? data?.icon?.url
+                          : "https://static.vecteezy.com/system/resources/previews/028/754/715/original/3d-purple-gift-box-present-illustration-icon-for-ui-ux-png.png"
+                      }
+                      alt="package icon"
+                    />
+                  </div>
+                  <div
+                    className="text-area bg-primary p-5"
+                    style={{ width: "50%" }}
+                  >
+                    <h4 className="m-0 text-white border-bottom border-2 py-1">
+                      Name : {data && data?.name}
+                    </h4>
+
+                    <h4 className="m-0 text-white border-bottom border-2 py-1">
+                      Data Pack : {data?.mbps} Mbps
+                    </h4>
+                    <h4 className="m-0 text-white border-bottom border-2 py-1">
+                      Price : {data?.price} BDT
+                    </h4>
+                    {data?.badge && (
+                      <h4 className="m-0 text-white border-bottom border-2 py-1">
+                        Badge : {data?.badge}
+                      </h4>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* === 2nd Tab === */}
-          <div
-            className="tab-pane fade"
-            id="pills-profile"
-            role="tabpanel"
-            aria-labelledby="pills-profile-tab"
-          >
-            <Security />
-          </div>
-          
-          <div
-            className="tab-pane fade"
-            id="pills-contact"
-            role="tabpanel"
-            aria-labelledby="pills-contact-tab"
-          >
-            <Billing />
           </div>
         </div>
       </div>
     </>
   );
+};
+
+Tabs.propTypes = {
+  data: PropTypes.shape({
+    name: PropTypes.string,
+    price: PropTypes.number,
+    mbps: PropTypes.string,
+    badge: PropTypes.string,
+    createdAt: PropTypes.string,
+    icon: PropTypes.shape({
+      url: PropTypes.string,
+    }),
+  }),
 };
 
 export default Tabs;
