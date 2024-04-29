@@ -1,5 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { authLogin, forgotPasswordReq, loggedinUserInfo, logoutUser, resetPassword, updatePassword } from "./authApiSlice";
+import {
+  authLogin,
+  forgotPasswordReq,
+  loggedinUserInfo,
+  logoutUser,
+  resetPassword,
+  updateAuthUser,
+  updatePassword,
+} from "./authApiSlice";
 
 const authSlice = createSlice({
   name: "auth",
@@ -29,7 +37,11 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.payload.user;
         state.message = action.payload.message;
-        localStorage.setItem("user", JSON.stringify(action.payload.payload.user));
+
+        localStorage.setItem(
+          "user",
+          JSON.stringify(action.payload.payload.user)
+        );
       })
       .addCase(authLogin.rejected, (state, action) => {
         state.loader = false;
@@ -48,6 +60,22 @@ const authSlice = createSlice({
       .addCase(loggedinUserInfo.rejected, (state, action) => {
         state.loader = false;
         state.isAuthenticated = false;
+        state.error = action.error.message;
+      })
+      .addCase(updateAuthUser.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(updateAuthUser.fulfilled, (state, action) => {
+        state.loader = false;
+        state.user = action.payload.payload.user;
+        state.message = action.payload.message;
+        localStorage.setItem(
+          "user",
+          JSON.stringify(action.payload.payload.user)
+        );
+      })
+      .addCase(updateAuthUser.rejected, (state, action) => {
+        state.loader = false;
         state.error = action.error.message;
       })
       .addCase(logoutUser.pending, (state) => {
@@ -103,7 +131,7 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loader = false;
         state.error = action.error.message;
-      })
+      });
   },
 });
 

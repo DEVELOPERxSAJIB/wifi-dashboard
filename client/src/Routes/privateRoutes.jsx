@@ -1,6 +1,5 @@
 import Layout from "../components/Layout/Layout";
 import Customer from "../pages/Customer/Customer";
-import Dashboard from "../pages/Dashboard/Dashboard";
 import Employee from "../pages/Employee/Employee";
 import CreateEmployee from "../pages/Employee/CreateEmployee";
 import CreateCustomer from "../pages/Customer/CreateCustomer";
@@ -14,6 +13,10 @@ import Profile from "../pages/Employee/Profile";
 import Account from "../pages/Customer/Account";
 import NotFound from "../pages/NotFound/NotFound";
 import UpdateCustomer from "../pages/Customer/UpdateCustomer";
+import MyProfile from "../pages/auth/MyProfile";
+import UpdateEmployee from "../pages/Employee/UpdateEmployee";
+import PendingEmployee from "../pages/Employee/PendingEmployee";
+import Dashboard from "../pages/Dashboard/Dashboard";
 
 export const privateRoutes = [
   {
@@ -27,8 +30,24 @@ export const privateRoutes = [
             element: <Dashboard />,
           },
           {
+            path: "/profile",
+            element: <MyProfile />,
+          },
+          {
+            path: "/settings",
+            element: <Settings />,
+          },
+          {
             path: "/employees",
             element: <Employee />,
+          },
+          {
+            path: "/pending-employees",
+            element: <PendingEmployee />,
+          },
+          {
+            path: "/employees/update/:id",
+            element: <UpdateEmployee />,
           },
           {
             path: "/employees/profile/:id",
@@ -57,10 +76,6 @@ export const privateRoutes = [
           {
             path: "/packages",
             element: <Plans />,
-          },
-          {
-            path: "/settings",
-            element: <Settings />,
           },
           {
             path: "/create-plan",

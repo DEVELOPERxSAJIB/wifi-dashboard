@@ -13,7 +13,7 @@ const Sidebar = () => {
         <div className="app-brand demo">
           <a href="index.html" className="app-brand-link py-3">
             <span className="app-brand-logo demo">
-              <svg
+              {/* <svg
                 width={32}
                 height={22}
                 viewBox="0 0 32 22"
@@ -46,13 +46,19 @@ const Sidebar = () => {
                   d="M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z"
                   fill="#7367F0"
                 />
-              </svg>
+              </svg> */}
             </span>
-            <span className="app-brand-text demo menu-text fw-bold">Vuexy</span>
-          </a>
-          <a className="layout-menu-toggle menu-link text-large ms-auto">
-            <i className="ti menu-toggle-icon d-none d-xl-block ti-sm align-middle" />
-            <i className="ti ti-x d-block d-xl-none ti-sm align-middle" />
+            <span
+              style={{
+                background: "-webkit-linear-gradient(60deg, #4834d4, #7367F0, #9C94F4)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontWeight: "bold",
+              }}
+              className="app-brand-text demo menu-text fw-bold"
+            >
+              Penta Online
+            </span>
           </a>
         </div>
         <div className="menu-inner-shadow" />
@@ -92,7 +98,10 @@ const Sidebar = () => {
               aria-expanded="false"
               className={
                 location.pathname === "/employees" ||
-                location.pathname === "/create-employee"
+                location.pathname === "/create-employee" ||
+                location.pathname === "/pending-employees" ||
+                location.pathname === `/employees/profile/${id}` ||
+                location.pathname === `/employees/update/${id}`
                   ? `dropdown-toggle menu-link bg-custom`
                   : `dropdown-toggle menu-link`
               }
@@ -141,7 +150,9 @@ const Sidebar = () => {
               aria-expanded="false"
               className={
                 location.pathname === "/customers" ||
-                location.pathname === "/create-customer"
+                location.pathname === "/create-customer" ||
+                location.pathname === `/customers/account/${id}` || 
+                location.pathname === `/customers/update-customer/${id}`
                   ? `dropdown-toggle menu-link bg-custom`
                   : `dropdown-toggle menu-link`
               }

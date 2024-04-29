@@ -8,6 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updatePlan } from "../../features/plan/planApiSlice";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const UpdatePlan = () => {
   const dispatch = useDispatch();
@@ -101,6 +102,7 @@ const UpdatePlan = () => {
 
   return (
     <>
+      <PageTitle title={`Update Plan @${singlePlan?.name}`} />
       {loader ? (
         <MainLoader />
       ) : (

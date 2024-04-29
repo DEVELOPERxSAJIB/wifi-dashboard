@@ -1,83 +1,35 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import {
-  banEmployee,
-  getAllEmployees,
-} from "../../features/employee/employeeApiSlice";
-import { useEffect, useState } from "react";
-import {
-  fetchAllEmployee,
-  setMessageEmpty,
-} from "../../features/employee/employeeSlice";
-import MainLoader from "../../utils/Loaders/MainLoader";
+import { loggedinUserInfo } from "../../features/auth/authApiSlice";
+import { getLoggedInUser } from "../../features/auth/authSlice";
+import { useEffect } from "react";
 import moment from "moment";
 import { Document, Page } from "react-pdf";
-import { FaBan } from "react-icons/fa";
-import { FiCheckCircle } from "react-icons/fi";
-import { alertMessage } from "../../utils/Alerts/alertMessage";
-import Swal from "sweetalert2";
-import { getLoggedInUser } from "../../features/auth/authSlice";
+import MainLoader from "../../utils/Loaders/MainLoader";
 import PageTitle from "../../components/PageTitle/PageTitle";
 
-const Profile = () => {
+const MyProfile = () => {
   const dispatch = useDispatch();
 
-  const { id } = useParams();
-  const { employees, error, message, loader } = useSelector(fetchAllEmployee);
-  const { user } = useSelector(getLoggedInUser);
-  console.log(user);
-
-  // get single user data
-  const [singleEmployee, setSingleEmployee] = useState();
-  useEffect(() => {
-    const employee = employees.find((data) => data?._id === id);
-    setSingleEmployee(employee);
-  }, [employees, id]);
+  const { user, loader } = useSelector(getLoggedInUser);
 
   const textStyle = {
     fontWeight: "bold",
-    color: singleEmployee?.isBan ? "red" : "green",
-  };
-
-  const handleBanStaff = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#685DD8",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Confirm!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(banEmployee(id));
-      }
-    });
+    color: user?.isBan ? "red" : "green",
   };
 
   useEffect(() => {
-    dispatch(getAllEmployees());
+    dispatch(loggedinUserInfo());
   }, [dispatch]);
-
-  useEffect(() => {
-    if (message) {
-      alertMessage({ type: "success", message: message });
-      dispatch(setMessageEmpty());
-    }
-    if (error) {
-      alertMessage({ type: "error", message: message });
-      dispatch(setMessageEmpty());
-    }
-  }, [dispatch, error, message]);
 
   return (
     <>
-      <PageTitle title={`Profile @${singleEmployee?.name}`} />
-      {!singleEmployee || loader ? (
+      <PageTitle title={"My Profile"} />
+      {loader ? (
         <MainLoader />
       ) : (
         <div className="container-xxl flex-grow-1 container-p-y">
           <h4 className="py-3 mb-4">
-            <span className="text-muted fw-light">Employee /</span> Profile
+            <span className="text-muted fw-light"></span> My Profile
           </h4>
           {/* Header */}
           <div className="row">
@@ -94,8 +46,8 @@ const Profile = () => {
                   <div className="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
                     <img
                       src={
-                        singleEmployee?.avatar.url !== null
-                          ? singleEmployee?.avatar?.url
+                        user?.avatar.url !== null
+                          ? user?.avatar?.url
                           : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
                       }
                       alt="user image"
@@ -110,19 +62,19 @@ const Profile = () => {
                   <div className="flex-grow-1 mt-sm-3">
                     <div className="d-flex align-items-md-end align-items-sm-start align-items-center justify-content-md-between justify-content-start mx-4 flex-md-row flex-column gap-4">
                       <div className="user-profile-info">
-                        <h4>{singleEmployee?.name}</h4>
+                        <h4>{user?.name}</h4>
                         <ul className="list-inline mb-0 d-flex align-items-center flex-wrap justify-content-sm-start justify-content-center gap-2">
                           <li className="text-capitalize list-inline-item d-flex gap-1">
                             <i className="ti ti-color-swatch" />
-                            {singleEmployee?.role}
+                            {user?.role}
                           </li>
                           <li className="list-inline-item d-flex gap-1">
                             <i className="ti ti-map-pin" />{" "}
-                            {singleEmployee?.address?.city} City
+                            {user?.address?.city} City
                           </li>
                           <li className="list-inline-item d-flex gap-1">
                             <i className="ti ti-calendar" /> Joined{" "}
-                            {moment(singleEmployee?.createdAt).format("LL")}
+                            {moment(user?.createdAt).format("LL")}
                           </li>
                         </ul>
                       </div>
@@ -136,38 +88,12 @@ const Profile = () => {
           {/* Navbar pills */}
           <div className="row">
             <div className="col-md-12">
-              <ul className="nav nav-pills gap-2 flex-column flex-sm-row mb-4">
+              <ul className="nav nav-pills flex-column flex-sm-row mb-4">
                 <li className="nav-item">
-                  <a className="nav-link active">
+                  <a className="nav-link active" href="javascript:void(0);">
                     <i className="ti-xs ti ti-user-check me-1" /> Profile
                   </a>
                 </li>
-
-                {user?.role === "admin" && (
-                  <>
-                    {singleEmployee?.isBan ? (
-                      <li className="nav-item">
-                        <button
-                          onClick={handleBanStaff}
-                          className="btn btn-success d-flex gap-2"
-                        >
-                          <FiCheckCircle />
-                          <span>Unban</span>
-                        </button>
-                      </li>
-                    ) : (
-                      <li className="nav-item">
-                        <button
-                          onClick={handleBanStaff}
-                          className="btn btn-danger d-flex gap-2"
-                        >
-                          <FaBan />
-                          <span>Ban</span>
-                        </button>
-                      </li>
-                    )}
-                  </>
-                )}
               </ul>
             </div>
           </div>
@@ -185,15 +111,15 @@ const Profile = () => {
                       <span className="fw-medium mx-2 text-heading">
                         Full Name:
                       </span>
-                      <span>{singleEmployee?.name}</span>
+                      <span>{user?.name}</span>
                     </li>
-                    {singleEmployee?.remark && (
+                    {user?.remark && (
                       <li className="d-flex align-items-center mb-3">
                         <i className="ti ti-bookmark text-heading" />
                         <span className="fw-medium mx-2 text-heading">
                           Nick Name:
                         </span>
-                        <span>{singleEmployee?.remark}</span>
+                        <span>{user?.remark}</span>
                       </li>
                     )}
                     <li className="d-flex align-items-center mb-3">
@@ -202,14 +128,14 @@ const Profile = () => {
                         Status:
                       </span>
                       <span style={textStyle}>
-                        {singleEmployee?.isBan ? "Banned" : "Active"}
+                        {user?.isBan ? "Banned" : "Active"}
                       </span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
                       <i className="ti ti-crown text-heading" />
                       <span className="fw-medium mx-2 text-heading">Role:</span>
                       <span className="text-capitalize fw-bold">
-                        {singleEmployee?.role}
+                        {user?.role}
                       </span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
@@ -217,14 +143,14 @@ const Profile = () => {
                       <span className="fw-medium mx-2 text-heading">
                         Gender:
                       </span>
-                      <span>{singleEmployee?.gender}</span>
+                      <span>{user?.gender}</span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
                       <i className="ti ti-target text-heading" />
                       <span className="fw-medium mx-2 text-heading">
                         Salary:
                       </span>
-                      <span>{singleEmployee?.salary} BDT</span>
+                      <span>{user?.salary} BDT</span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
                       <i className="ti ti-location text-heading" />
@@ -232,8 +158,7 @@ const Profile = () => {
                         Address:
                       </span>
                       <span>
-                        {singleEmployee?.address?.street},{" "}
-                        {singleEmployee?.address?.city}
+                        {user?.address?.street}, {user?.address?.city}
                       </span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
@@ -241,7 +166,7 @@ const Profile = () => {
                       <span className="fw-medium mx-2 text-heading">
                         Country:
                       </span>
-                      <span>{singleEmployee?.address?.country}</span>
+                      <span>{user?.address?.country}</span>
                     </li>
                   </ul>
                   <small className="card-text text-uppercase">Contacts</small>
@@ -251,14 +176,14 @@ const Profile = () => {
                       <span className="fw-medium mx-2 text-heading">
                         Contact:
                       </span>
-                      <span>{singleEmployee?.mobile}</span>
+                      <span>{user?.mobile}</span>
                     </li>
                     <li className="d-flex align-items-center mb-3">
                       <i className="ti ti-mail" />
                       <span className="fw-medium mx-2 text-heading">
                         Email:
                       </span>
-                      <span>{singleEmployee?.email}</span>
+                      <span>{user?.email}</span>
                     </li>
                   </ul>
                 </div>
@@ -273,14 +198,13 @@ const Profile = () => {
                 </div>
                 <div className="card-body pb-0">
                   <div className="photo-gallery">
-                    {singleEmployee?.documents &&
-                    singleEmployee?.documents?.length > 0 ? (
+                    {user?.documents && user?.documents?.length > 0 ? (
                       <div className="container">
                         <div className="intro">
                           <h2 className="text-center">Doc Preview</h2>
                         </div>
                         <div className="row photos">
-                          {singleEmployee?.documents?.map((item) => {
+                          {user?.documents?.map((item) => {
                             return (
                               <div
                                 key={item?._id}
@@ -334,4 +258,4 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default MyProfile;

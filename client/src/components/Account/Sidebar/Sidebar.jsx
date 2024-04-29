@@ -35,6 +35,12 @@ const Sidebar = ({ data }) => {
                     <span className="fw-medium me-1">Name:</span>
                     <span>{data?.name}</span>
                   </li>
+                  {data.gender && (
+                    <li className="mb-2 pt-1">
+                      <span className="fw-medium me-1 ">Gender:</span>
+                      <span>{data.gender}</span>
+                    </li>
+                  )}
                   {data.remark && (
                     <li className="mb-2 pt-1">
                       <span className="fw-medium me-1 ">Nick Name:</span>
@@ -89,6 +95,7 @@ Sidebar.propTypes = {
   data: PropTypes.shape({
     name: PropTypes.string,
     remark: PropTypes.string,
+    gender: PropTypes.string,
     email: PropTypes.string,
     mobile: PropTypes.string,
     createdAt: PropTypes.string,

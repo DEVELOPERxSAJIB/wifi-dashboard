@@ -14,7 +14,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
-  const { isAuthenticated, user, message, error, loader } = useSelector(getLoggedInUser);
+  const { isAuthenticated, user, message, error, loader } =
+    useSelector(getLoggedInUser);
 
   const handleShowPassword = () => {
     setShowPassword(!showPassword);
@@ -41,8 +42,16 @@ const Login = () => {
   };
 
   useEffect(() => {
+    if (user?.isBan) {
+      navigate("/login");
+    }
+
     if (user && isAuthenticated) {
-      navigate("/");
+      if (user.role === "admin") {
+        navigate("/");
+      } else {
+        navigate("/packages");
+      }
     }
 
     if (message) {

@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User.js");
 
 const tokenVerify = (req, res, next) => {
-  const accessToken = req.cookies.accessToken;
+  const accessToken = req.cookies?.accessToken;
 
   if (!accessToken) {
     return res
@@ -23,8 +23,12 @@ const tokenVerify = (req, res, next) => {
         "-password"
       );
 
-      req.user = user;
-      next();
+      if (user?.isBan) {
+        req.user = null;
+      } else {
+        req.user = user;
+        next();
+      }
     })
   );
 };

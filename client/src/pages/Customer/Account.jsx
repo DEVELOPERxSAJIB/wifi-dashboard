@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { gettingAllCustomers } from "../../features/customer/customerSlice";
 import { getAllCustomer } from "../../features/customer/customerApiSlice";
 import MainLoader from "../../utils/Loaders/MainLoader";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const Account = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const Account = () => {
 
   return (
     <>
+    <PageTitle title={`Customer Profile @${soloCustomer?.name}`} />
       {loader ? (
         <MainLoader />
       ) : (

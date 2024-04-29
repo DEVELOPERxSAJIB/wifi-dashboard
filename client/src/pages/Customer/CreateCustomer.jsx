@@ -12,6 +12,7 @@ import {
 import { alertMessage } from "../../utils/Alerts/alertMessage";
 import { useNavigate } from "react-router-dom";
 import MainLoader from "../../utils/Loaders/MainLoader";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const CreateCustomer = () => {
   const dispatch = useDispatch();
@@ -102,6 +103,7 @@ const CreateCustomer = () => {
 
   return (
     <>
+    <PageTitle title={"Add New Customer"} />
       {loader ? (
         <MainLoader />
       ) : (

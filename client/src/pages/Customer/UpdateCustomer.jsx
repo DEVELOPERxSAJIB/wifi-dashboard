@@ -5,29 +5,39 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllPlans } from "../../features/plan/planApiSlice";
 import { gettingAllPlans } from "../../features/plan/planSlice";
 import {
-  createNewCustomer,
-  getSingleCustomer,
+  getAllCustomer,
+  updateCustomer,
 } from "../../features/customer/customerApiSlice";
 import {
-  gettingSingleCustomer,
+  gettingAllCustomers,
   setMessageEmpty,
 } from "../../features/customer/customerSlice";
 import { alertMessage } from "../../utils/Alerts/alertMessage";
 import { useNavigate, useParams } from "react-router-dom";
+import MainLoader from "../../utils/Loaders/MainLoader";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const UpdateCustomer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { customers, error, message } = useSelector(gettingSingleCustomer);
+  const { customers, error, message, loader } =
+    useSelector(gettingAllCustomers);
   const { plans } = useSelector(gettingAllPlans);
+
+  // find single customer
+  const [customer, setCustomer] = useState();
+  useEffect(() => {
+    const data = customers?.find((data) => data?._id === id);
+    setCustomer(data);
+  }, [customers, id]);
 
   const countriesList = Object.values(countries);
 
   const [avatar, setAvatar] = useState({
-    public_id : customers?.image?.public_id,
-    url : customers?.image?.url,
+    public_id: customer?.image?.public_id,
+    url: customer?.image?.url,
   });
   const [avatarPreview, setAvatarPreview] = useState(null);
 
@@ -57,9 +67,7 @@ const UpdateCustomer = () => {
     postalCode: "",
     country: "",
   });
-  const [gender, setGender] = useState(
-    customers?.gender ? customers?.gender : ""
-  );
+  const [gender, setGender] = useState(customer?.gender || "");
 
   const handleInputChange = (e) => {
     setInput((prevState) => ({
@@ -87,33 +95,41 @@ const UpdateCustomer = () => {
       form_data.append("customerPicture", avatar);
     }
 
-    dispatch(createNewCustomer(form_data));
+    dispatch(updateCustomer({ id, form_data }));
   };
 
   useEffect(() => {
-    dispatch(getSingleCustomer(id));
+    dispatch(getAllCustomer());
   }, [dispatch, id]);
 
   useEffect(() => {
-    dispatch(getAllPlans);
+    dispatch(getAllPlans());
   }, [dispatch]);
 
   useEffect(() => {
-    setInput({
-      name: customers?.name,
-      email: customers?.email,
-      mobile: customers?.mobile,
-      package: customers?.package,
-      remark: customers?.remark,
-      street: customers?.address?.street,
-      city: customers?.address?.city,
-      postalCode: customers?.address?.postalCode,
-      country: customers?.address?.county,
-    });
+    setInput((prevState) => ({
+      ...prevState,
+      name: customer?.name || "",
+      email: customer?.email || "",
+      mobile: customer?.mobile || "",
+      package: customer?.package?._id || "",
+      remark: customer?.remark || "",
+      street: customer?.address?.street || "",
+      city: customer?.address?.city || "",
+      postalCode: customer?.address?.postalCode || "",
+      country: customer?.address?.country || "",
+    }));
+
+    if (customer) {
+      setGender(customer?.gender || "");
+    }
+
     setAvatarPreview(
-       customers?.image?.url ? customers?.image?.url : "https://static.vecteezy.com/system/resources/thumbnails/022/876/359/small_2x/social-media-user-3d-cartoon-illustration-speech-bubble-with-internet-icon-png.png",
+      !customer?.image?.url
+        ? "https://static.vecteezy.com/system/resources/thumbnails/022/876/359/small_2x/social-media-user-3d-cartoon-illustration-speech-bubble-with-internet-icon-png.png"
+        : customer.image.url
     );
-  }, [customers, id]);
+  }, [customer, customers?.gender, id]);
 
   useEffect(() => {
     if (message) {
@@ -126,388 +142,391 @@ const UpdateCustomer = () => {
       alertMessage({ type: "error", message: error });
       dispatch(setMessageEmpty());
     }
-  }, [dispatch, error, message, navigate]);
+  }, [customer, dispatch, error, message, navigate]);
 
   return (
     <>
-      <div className="container-xxl flex-grow-1 container-p-y">
-        <form onSubmit={handleSubmitForm}>
-          <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-            <div className="d-flex flex-column justify-content-center">
-              <h4 className="py-3 mb-0">
-                <span className="text-muted fw-light">Customer /</span>
-                <span className="fw-medium"> Update customer</span>
-              </h4>
-            </div>
-            <div className="d-flex align-content-center flex-wrap gap-3">
-              <button type="submit" className="btn btn-primary">
-                Update Profile
-              </button>
-            </div>
-          </div>
+      <PageTitle title={`Update Customer @${customer?.name}`} />
 
-          <div className="row">
-            {/* First column*/}
-            <div className="col-12 col-lg-8">
-              {/* Profile Information */}
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="card-tile mb-0">Customer information</h5>
+      {loader ? (
+        <MainLoader />
+      ) : (
+        <div className="container-xxl flex-grow-1 container-p-y">
+          <form onSubmit={handleSubmitForm}>
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+              <div className="d-flex flex-column justify-content-center">
+                <h4 className="py-3 mb-0">
+                  <span className="text-muted fw-light">Customer /</span>
+                  <span className="fw-medium"> Update customer</span>
+                </h4>
+              </div>
+              <div className="d-flex align-content-center flex-wrap gap-3">
+                <button type="submit" className="btn btn-primary">
+                  Update Profile
+                </button>
+              </div>
+            </div>
+
+            <div className="row">
+              {/* First column*/}
+              <div className="col-12 col-lg-8">
+                {/* Profile Information */}
+                <div className="card mb-4">
+                  <div className="card-header">
+                    <h5 className="card-tile mb-0">Customer information</h5>
+                  </div>
+                  <div className="card-body">
+                    <div className="mb-3">
+                      <label className="form-label" htmlFor="name">
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        id="name"
+                        placeholder="User name"
+                        name="name"
+                        value={input.name}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col">
+                        <label className="form-label" htmlFor="Email">
+                          Email
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="Email"
+                          placeholder="Email"
+                          name="email"
+                          value={input.email}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                      <div className="col">
+                        <label className="form-label" htmlFor="Mobile">
+                          Mobile
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          id="Mobile"
+                          placeholder="Phone Number"
+                          name="mobile"
+                          value={input.mobile}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="row mb-3">
+                      <div className="col">
+                        <label className="form-label" htmlFor="Salary">
+                          Package
+                        </label>
+                        <select
+                          name="package"
+                          value={input.package}
+                          onChange={handleInputChange}
+                          className="select2 form-select"
+                        >
+                          <option disabled value={""}>
+                            - select a plan -
+                          </option>
+                          {plans?.map((plan) => (
+                            <option key={plan._id} value={plan?._id}>
+                              {plan.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col">
+                        <label className="form-label" htmlFor="Remark">
+                          Remark
+                        </label>
+                        <input
+                          className="form-control"
+                          type="text"
+                          id="Remark"
+                          placeholder="Nick Name"
+                          name="remark"
+                          value={input.remark}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="card-body">
-                  <div className="mb-3">
-                    <label className="form-label" htmlFor="name">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="name"
-                      placeholder="User name"
-                      name="name"
-                      value={input.name}
-                      onChange={handleInputChange}
-                    />
+                {/* /Product Information */}
+                {/* Avatar  & Gander */}
+                <div className="card mb-4">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Avatar & Gander</h5>
                   </div>
-                  <div className="row mb-3">
-                    <div className="col">
-                      <label className="form-label" htmlFor="Email">
-                        Email
+                  <div className="card-body">
+                    <div className="row">
+                      {/* Navigation */}
+                      <div className="col-12 col-md-4 mx-auto card-separator">
+                        <div className="d-flex justify-content-between flex-column mb-3 mb-md-0 pe-md-3">
+                          <ul className="nav nav-align-left nav-pills flex-column">
+                            <li className="nav-item">
+                              <button
+                                className="nav-link py-2 active"
+                                data-bs-toggle="tab"
+                                data-bs-target="#restock"
+                                onClick={(e) => e.preventDefault()}
+                              >
+                                <i className="ti ti-box me-2" />
+                                <span className="align-middle">Avatar</span>
+                              </button>
+                            </li>
+                            <li className="nav-item">
+                              <button
+                                className="nav-link py-2"
+                                data-bs-toggle="tab"
+                                data-bs-target="#shipping"
+                                onClick={(e) => e.preventDefault()}
+                              >
+                                <i className="ti ti-car me-2" />
+                                <span className="align-middle">Gander</span>
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      {/* /Navigation */}
+                      {/* Options */}
+                      <div className="col-12 col-md-8 pt-4 pt-md-0">
+                        <div className="tab-content p-0 ps-md-3">
+                          {/* Avatar Tab */}
+                          <div
+                            className="tab-pane fade show active"
+                            id="restock"
+                            role="tabpanel"
+                          >
+                            <div
+                              style={
+                                avatar
+                                  ? { height: "auto" }
+                                  : {
+                                      height: "250px",
+                                      borderRadius: "10px",
+                                      background: "#F8F7FA",
+                                    }
+                              }
+                              className="row d-flex border border-primary border-2 border-dashed justify-content-center align-items-center"
+                            >
+                              <div className="col-12 col-sm-9 text-center">
+                                {avatar ? (
+                                  <>
+                                    <div className="position-relative avartar-preview-img">
+                                      <span
+                                        onClick={handleRemovePreviewAvatar}
+                                        className="badge bg-danger cursor-pointer bg-glow image-remove-icon"
+                                      >
+                                        <IoTrash />
+                                      </span>
+                                      <img
+                                        style={{
+                                          width: "100%",
+                                          height: "100%",
+                                          padding: "5px 0",
+                                        }}
+                                        src={avatarPreview}
+                                        alt=""
+                                      />
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <label
+                                      htmlFor="fileInput"
+                                      className="note needsclick btn bg-label-primary d-inline"
+                                    >
+                                      Browse image
+                                      <input
+                                        id="fileInput"
+                                        type="file"
+                                        className="d-none"
+                                        accept="image/*"
+                                        onChange={handleAvatarChange}
+                                      />
+                                    </label>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          {/* Gander Tab */}
+                          <div
+                            className="tab-pane fade"
+                            id="shipping"
+                            role="tabpanel"
+                          >
+                            <div className="d-flex mb-4">
+                              <h5 className="m-0">Select gander &nbsp;</h5>
+                            </div>
+                            <div>
+                              <div className="form-check mb-1">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="gender"
+                                  id="male"
+                                  value={"male"}
+                                  checked={gender === "male"}
+                                  onChange={(e) => setGender(e.target.value)}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="male"
+                                >
+                                  <span className="fw-medium d-block mb-1">
+                                    Male
+                                  </span>
+                                </label>
+                              </div>
+
+                              <div className="form-check mb-1">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="gender"
+                                  id="female"
+                                  value={"female"}
+                                  checked={gender === "female"}
+                                  onChange={(e) => setGender(e.target.value)}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="female"
+                                >
+                                  <span className="fw-medium d-block mb-1">
+                                    Female
+                                  </span>
+                                </label>
+                              </div>
+
+                              <div className="form-check mb-5">
+                                <input
+                                  className="form-check-input"
+                                  type="radio"
+                                  name="gender"
+                                  id="others"
+                                  value={"others"}
+                                  checked={gender === "others"}
+                                  onChange={(e) => setGender(e.target.value)}
+                                />
+                                <label
+                                  className="form-check-label"
+                                  htmlFor="others"
+                                >
+                                  <span className="fw-medium d-block mb-1">
+                                    Others
+                                  </span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* /Options*/}
+                    </div>
+                  </div>
+                </div>
+                {/* Avatar  & Gander */}
+              </div>
+              {/* /Second column */}
+              {/* Second column */}
+              <div className="col-12 col-lg-4">
+                {/* Address Card */}
+                <div className="card mb-4">
+                  <div className="card-header">
+                    <h5 className="card-title mb-0">Address</h5>
+                  </div>
+                  <div className="card-body">
+                    {/* Street */}
+                    <div className="mb-3 col ecommerce-select2-dropdown">
+                      <label className="form-label mb-1" htmlFor="street">
+                        Street
                       </label>
                       <input
                         type="text"
+                        id="street"
                         className="form-control"
-                        id="Email"
-                        placeholder="Email"
-                        name="email"
-                        value={input.email}
+                        placeholder="provide street name"
+                        name="street"
+                        value={input.street}
                         onChange={handleInputChange}
                       />
                     </div>
-                    <div className="col">
-                      <label className="form-label" htmlFor="Mobile">
-                        Mobile
+                    {/* City */}
+                    <div className="mb-3 col ecommerce-select2-dropdown">
+                      <label
+                        className="form-label mb-1 d-flex justify-content-between align-items-center"
+                        htmlFor="city"
+                      >
+                        <span>City</span>
                       </label>
                       <input
                         type="text"
+                        id="city"
                         className="form-control"
-                        id="Mobile"
-                        placeholder="Phone Number"
-                        name="mobile"
-                        value={input.mobile}
+                        placeholder="provide city name"
+                        name="city"
+                        value={input.city}
                         onChange={handleInputChange}
                       />
                     </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col">
-                      <label className="form-label" htmlFor="Salary">
-                        Package
+                    {/* Zip Code */}
+                    <div className="mb-3 col ecommerce-select2-dropdown">
+                      <label className="form-label mb-1" htmlFor="zipcode">
+                        Zip Code
+                      </label>
+                      <input
+                        type="text"
+                        id="zipcode"
+                        className="form-control"
+                        placeholder="Zipcode of city"
+                        name="postalCode"
+                        value={input.postalCode}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    {/* Country */}
+                    <div className="mb-3 col ecommerce-select2-dropdown">
+                      <label className="form-label mb-1" htmlFor="country">
+                        Country
                       </label>
                       <select
-                        name="package"
-                        value={input.package}
-                        onChange={handleInputChange}
+                        id="country"
                         className="select2 form-select"
+                        data-placeholder="Published"
+                        name="country"
+                        value={input.country}
+                        onChange={handleInputChange}
                       >
                         <option disabled value={""}>
-                          - select a plan -
+                          - select a country -
                         </option>
-                        {plans?.map((plan) => (
-                          <option key={plan._id} value={plan._id}>
-                            {plan.name}
-                          </option>
-                        ))}
+                        {countriesList &&
+                          countriesList.map((country) => (
+                            <option key={country.name} value={country.name}>
+                              {country.name}
+                            </option>
+                          ))}
                       </select>
                     </div>
-                    <div className="col">
-                      <label className="form-label" htmlFor="Remark">
-                        Remark
-                      </label>
-                      <input
-                        className="form-control"
-                        type="text"
-                        id="Remark"
-                        placeholder="Nick Name"
-                        name="remark"
-                        value={input.remark}
-                        onChange={handleInputChange}
-                      />
-                    </div>
                   </div>
                 </div>
+                {/* /Address Card */}
               </div>
-              {/* /Product Information */}
-              {/* Avatar  & Gander */}
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="card-title mb-0">Avatar & Gander</h5>
-                </div>
-                <div className="card-body">
-                  <div className="row">
-                    {/* Navigation */}
-                    <div className="col-12 col-md-4 mx-auto card-separator">
-                      <div className="d-flex justify-content-between flex-column mb-3 mb-md-0 pe-md-3">
-                        <ul className="nav nav-align-left nav-pills flex-column">
-                          <li className="nav-item">
-                            <button
-                              className="nav-link py-2 active"
-                              data-bs-toggle="tab"
-                              data-bs-target="#restock"
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              <i className="ti ti-box me-2" />
-                              <span className="align-middle">Avatar</span>
-                            </button>
-                          </li>
-                          <li className="nav-item">
-                            <button
-                              className="nav-link py-2"
-                              data-bs-toggle="tab"
-                              data-bs-target="#shipping"
-                              onClick={(e) => e.preventDefault()}
-                            >
-                              <i className="ti ti-car me-2" />
-                              <span className="align-middle">Gander</span>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                    {/* /Navigation */}
-                    {/* Options */}
-                    <div className="col-12 col-md-8 pt-4 pt-md-0">
-                      <div className="tab-content p-0 ps-md-3">
-                        {/* Avatar Tab */}
-                        <div
-                          className="tab-pane fade show active"
-                          id="restock"
-                          role="tabpanel"
-                        >
-                          <div
-                            style={
-                              avatar
-                                ? { height: "auto" }
-                                : {
-                                    height: "250px",
-                                    borderRadius: "10px",
-                                    background: "#F8F7FA",
-                                  }
-                            }
-                            className="row d-flex border border-primary border-2 border-dashed justify-content-center align-items-center"
-                          >
-                            <div className="col-12 col-sm-9 text-center">
-                              {avatar ? (
-                                <>
-                                  <div className="position-relative avartar-preview-img">
-                                    <span
-                                      onClick={handleRemovePreviewAvatar}
-                                      className="badge bg-danger cursor-pointer bg-glow image-remove-icon"
-                                    >
-                                      <IoTrash />
-                                    </span>
-                                    <img
-                                      style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        padding: "5px 0",
-                                      }}
-                                      src={avatarPreview}
-                                      alt=""
-                                    />
-                                  </div>
-                                </>
-                              ) : (
-                                <>
-                                  <label
-                                    htmlFor="fileInput"
-                                    className="note needsclick btn bg-label-primary d-inline"
-                                  >
-                                    Browse image
-                                    <input
-                                      id="fileInput"
-                                      type="file"
-                                      className="d-none"
-                                      accept="image/*"
-                                      onChange={handleAvatarChange}
-                                    />
-                                  </label>
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        {/* Gander Tab */}
-                        <div
-                          className="tab-pane fade"
-                          id="shipping"
-                          role="tabpanel"
-                        >
-                          <div className="d-flex mb-4">
-                            <h5 className="m-0">Select gander &nbsp;</h5>
-                            <small className="badge rounded-2 badge-warning bg-label-warning fs-tiny border border-warning font-italic">
-                              RECOMMENDED
-                            </small>
-                          </div>
-                          <div>
-                            <div className="form-check mb-1">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="gender"
-                                id="male"
-                                value={gender}
-                                checked={gender === "male"}
-                                onChange={(e) => setGender(e.target.value)}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="male"
-                              >
-                                <span className="fw-medium d-block mb-1">
-                                  Male
-                                </span>
-                              </label>
-                            </div>
-
-                            <div className="form-check mb-1">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="gender"
-                                id="female"
-                                value={gender}
-                                checked={gender === "female"}
-                                onChange={(e) => setGender(e.target.value)}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="female"
-                              >
-                                <span className="fw-medium d-block mb-1">
-                                  Female
-                                </span>
-                              </label>
-                            </div>
-
-                            <div className="form-check mb-5">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="gender"
-                                id="others"
-                                value={gender}
-                                checked={gender === "others"}
-                                onChange={(e) => setGender(e.target.value)}
-                              />
-                              <label
-                                className="form-check-label"
-                                htmlFor="others"
-                              >
-                                <span className="fw-medium d-block mb-1">
-                                  Others
-                                </span>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {/* /Options*/}
-                  </div>
-                </div>
-              </div>
-              {/* Avatar  & Gander */}
+              {/* /Second column */}
             </div>
-            {/* /Second column */}
-            {/* Second column */}
-            <div className="col-12 col-lg-4">
-              {/* Address Card */}
-              <div className="card mb-4">
-                <div className="card-header">
-                  <h5 className="card-title mb-0">Address</h5>
-                </div>
-                <div className="card-body">
-                  {/* Street */}
-                  <div className="mb-3 col ecommerce-select2-dropdown">
-                    <label className="form-label mb-1" htmlFor="street">
-                      Street
-                    </label>
-                    <input
-                      type="text"
-                      id="street"
-                      className="form-control"
-                      placeholder="provide street name"
-                      name="street"
-                      value={input.street}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {/* City */}
-                  <div className="mb-3 col ecommerce-select2-dropdown">
-                    <label
-                      className="form-label mb-1 d-flex justify-content-between align-items-center"
-                      htmlFor="city"
-                    >
-                      <span>City</span>
-                    </label>
-                    <input
-                      type="text"
-                      id="city"
-                      className="form-control"
-                      placeholder="provide city name"
-                      name="city"
-                      value={input.city}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {/* Zip Code */}
-                  <div className="mb-3 col ecommerce-select2-dropdown">
-                    <label className="form-label mb-1" htmlFor="zipcode">
-                      Zip Code
-                    </label>
-                    <input
-                      type="text"
-                      id="zipcode"
-                      className="form-control"
-                      placeholder="Zipcode of city"
-                      name="postalCode"
-                      value={input.postalCode}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  {/* Country */}
-                  <div className="mb-3 col ecommerce-select2-dropdown">
-                    <label className="form-label mb-1" htmlFor="country">
-                      Country
-                    </label>
-                    <select
-                      id="country"
-                      className="select2 form-select"
-                      data-placeholder="Published"
-                      name="country"
-                      value={input.country}
-                      onChange={handleInputChange}
-                    >
-                      <option disabled value={""}>
-                        - select a country -
-                      </option>
-                      {countriesList &&
-                        countriesList.map((country) => (
-                          <option key={country.name} value={country.name}>
-                            {country.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-              {/* /Address Card */}
-            </div>
-            {/* /Second column */}
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
     </>
   );
 };

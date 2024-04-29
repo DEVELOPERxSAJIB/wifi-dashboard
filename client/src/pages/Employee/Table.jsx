@@ -9,6 +9,8 @@ import { FaRegEye } from "react-icons/fa";
 import { IoTrash } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import { FaFileExport } from "react-icons/fa6";
+import MainLoader from "../../utils/Loaders/MainLoader";
+import { getLoggedInUser } from "../../features/auth/authSlice";
 
 const CustomDataTable = styled(DataTable)`
   .rdt_TableCell {
@@ -26,7 +28,10 @@ const Table = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { employees } = useSelector(fetchAllEmployee);
+  const { employees, loader } = useSelector(fetchAllEmployee);
+  const { user } = useSelector(getLoggedInUser);
+
+  const activateEmployee = employees.filter((data) => data.isActivate === true);
 
   const columns = [
     {
@@ -41,15 +46,29 @@ const Table = () => {
     },
     {
       name: "Image",
-      selector: (row) => (
-        <img
-          style={{ borderRadius: "5px", objectFit: "cover" }}
-          height={55}
-          width={65}
-          src={row.avatar?.url}
-          alt="user-avater"
-        />
-      ),
+      selector: (row) => {
+        return row?.avatar?.url !== null ? (
+          <img
+            style={{ borderRadius: "5px", objectFit: "cover" }}
+            height={55}
+            width={65}
+            src={row.avatar?.url}
+            alt="user-avater"
+          />
+        ) : (
+          <img
+            style={{
+              borderRadius: "5px",
+              objectFit: "cover",
+              border: "1px solid #efefef",
+            }}
+            height={"fill"}
+            width={65}
+            src="https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
+            alt="user-avater"
+          />
+        );
+      },
     },
     {
       name: "Phone",
@@ -63,8 +82,12 @@ const Table = () => {
     {
       name: "Role",
       selector: (row) => (
-        <span className="badge bg-primary">
-          {row.isAdmin ? "Admin" : "User"}
+        <span
+          className={`badge text-capitalize ${
+            row.role === "admin" ? "bg-primary" : "bg-dark"
+          }`}
+        >
+          {row?.role}
         </span>
       ),
     },
@@ -79,7 +102,10 @@ const Table = () => {
             >
               <FaRegEye />
             </span>
-            <span className="badge rounded-pill bg-warning cursor-pointer bg-glow">
+            <span
+              onClick={() => navigate(`/employees/update/${row._id}`)}
+              className="badge rounded-pill bg-warning cursor-pointer bg-glow"
+            >
               <FiEdit />
             </span>
             <span className="badge rounded-pill bg-danger cursor-pointer bg-glow">
@@ -107,15 +133,15 @@ const Table = () => {
   const [filteredEmployee, setFilteredEmployee] = useState([]);
 
   useEffect(() => {
-    dispatch(getAllEmployees());
+    dispatch(getAllEmployees(user?.role));
   }, [dispatch]);
 
   useEffect(() => {
-    setFilteredEmployee(employees);
+    setFilteredEmployee(activateEmployee);
   }, [employees]);
 
   useEffect(() => {
-    const result = employees.filter((data) => {
+    const result = activateEmployee.filter((data) => {
       const searchToLowerCase = search.toLowerCase();
       return (
         data.name.toLowerCase().includes(searchToLowerCase) ||
@@ -132,42 +158,48 @@ const Table = () => {
 
   return (
     <>
-      <div className="d-flex justify-content-end py-3"></div>
-      <CustomDataTable
-        columns={columns}
-        data={filteredEmployee}
-        striped
-        pagination
-        highlightOnHover
-        selectableRows
-        selectableRowsHighlight
-        onSelectedRowsChange={handleRowSelected}
-        subHeader
-        subHeaderComponent={
-          <>
-            <input
-              type="text"
-              className="form-control w-25"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {selectedRows.length > 0 && (
-              <button className="btn btn-primary mx-2">
-                <FaFileExport />
-              </button>
-            )}
-            {selectedRows.length > 0 && (
-              <button
-                style={{ background: "red", color: "white" }}
-                className="btn"
-                onClick={handleDeleteRow}
-              >
-                <IoTrash />
-              </button>
-            )}
-          </>
-        }
-      />
+      {loader ? (
+        <MainLoader />
+      ) : (
+        <>
+          <div className="d-flex justify-content-end py-3"></div>
+          <CustomDataTable
+            columns={columns}
+            data={filteredEmployee}
+            striped
+            pagination
+            highlightOnHover
+            selectableRows
+            selectableRowsHighlight
+            onSelectedRowsChange={handleRowSelected}
+            subHeader
+            subHeaderComponent={
+              <>
+                <input
+                  type="text"
+                  className="form-control w-25"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {selectedRows.length > 0 && (
+                  <button className="btn btn-primary mx-2">
+                    <FaFileExport />
+                  </button>
+                )}
+                {selectedRows.length > 0 && (
+                  <button
+                    style={{ background: "red", color: "white" }}
+                    className="btn"
+                    onClick={handleDeleteRow}
+                  >
+                    <IoTrash />
+                  </button>
+                )}
+              </>
+            }
+          />
+        </>
+      )}
     </>
   );
 };

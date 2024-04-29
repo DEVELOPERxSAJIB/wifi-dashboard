@@ -1,7 +1,37 @@
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAllEmployee } from "../../features/employee/employeeSlice";
+import { getAllEmployees } from "../../features/employee/employeeApiSlice";
+import { getAllCustomer } from "../../features/customer/customerApiSlice";
+import { gettingAllCustomers } from "../../features/customer/customerSlice";
+import { Link } from "react-router-dom";
+import { getLoggedInUser } from "../../features/auth/authSlice";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const Dashboard = () => {
+  const dispatch = useDispatch();
+
+  const { employees } = useSelector(fetchAllEmployee);
+  const { customers } = useSelector(gettingAllCustomers);
+  const { user } = useSelector(getLoggedInUser);
+
+  const pendingEmployees = employees.filter(
+    (employee) => employee.isActivate === false
+  );
+  const activateEmployee = employees.filter(
+    (employee) => employee.isActivate === true
+  );
+
+  useEffect(() => {
+    dispatch(getAllEmployees(user?.role));
+    dispatch(getAllCustomer());
+  }, [dispatch]);
+
   return (
     <>
+      <PageTitle
+        title={user?.role === "admin" ? "Admin Dashboard " : "Staff Dashboard "}
+      />
       <div className="container-xxl flex-grow-1 container-p-y">
         <div className="row g-4 mb-4">
           <div className="col-sm-6 col-xl-3">
@@ -26,67 +56,77 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="col-sm-6 col-xl-3">
-            <div className="card">
-              <div className="card-body">
-                <div className="d-flex align-items-start justify-content-between">
-                  <div className="content-left">
-                    <span>Paid Users</span>
-                    <div className="d-flex align-items-center my-2">
-                      <h3 className="mb-0 me-2">4,567</h3>
-                      <p className="text-success mb-0">(+18%)</p>
+            <Link to="/customers">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-start justify-content-between">
+                    <div className="content-left">
+                      <span>Paid Customers</span>
+                      <div className="d-flex align-items-center my-2">
+                        <h3 className="mb-0 me-2">{customers?.length}</h3>
+                        <p className="text-success mb-0"></p>
+                      </div>
+                      <p className="mb-0">See all customers</p>
                     </div>
-                    <p className="mb-0">Last week analytics</p>
-                  </div>
-                  <div className="avatar">
-                    <span className="avatar-initial rounded bg-label-danger">
-                      <i className="ti ti-user-plus ti-sm" />
-                    </span>
+                    <div className="avatar">
+                      <span className="avatar-initial rounded bg-label-danger">
+                        <i className="ti ti-user-plus ti-sm" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div className="col-sm-6 col-xl-3">
-            <div className="card">
-              <div className="card-body">
-                <div className="d-flex align-items-start justify-content-between">
-                  <div className="content-left">
-                    <span>Active Users</span>
-                    <div className="d-flex align-items-center my-2">
-                      <h3 className="mb-0 me-2">19,860</h3>
-                      <p className="text-danger mb-0">(-14%)</p>
+            <Link to={"employees"}>
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-start justify-content-between">
+                    <div className="content-left">
+                      <span>Active Staff</span>
+                      <div className="d-flex align-items-center my-2">
+                        <h3 className="mb-0 me-2">
+                          {activateEmployee?.length}
+                        </h3>
+                        <p className="text-danger mb-0"></p>
+                      </div>
+                      <p className="mb-0">See all Employees</p>
                     </div>
-                    <p className="mb-0">Last week analytics</p>
-                  </div>
-                  <div className="avatar">
-                    <span className="avatar-initial rounded bg-label-success">
-                      <i className="ti ti-user-check ti-sm" />
-                    </span>
+                    <div className="avatar">
+                      <span className="avatar-initial rounded bg-label-success">
+                        <i className="ti ti-user-check ti-sm" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
           <div className="col-sm-6 col-xl-3">
-            <div className="card">
-              <div className="card-body">
-                <div className="d-flex align-items-start justify-content-between">
-                  <div className="content-left">
-                    <span>Pending Users</span>
-                    <div className="d-flex align-items-center my-2">
-                      <h3 className="mb-0 me-2">237</h3>
-                      <p className="text-success mb-0">(+42%)</p>
+            <Link to="/pending-employees">
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-start justify-content-between">
+                    <div className="content-left">
+                      <span>Pending Staff</span>
+                      <div className="d-flex align-items-center my-2">
+                        <h3 className="mb-0 me-2">
+                          {pendingEmployees?.length}
+                        </h3>
+                        <p className="text-success mb-0"></p>
+                      </div>
+                      <p className="mb-0">Waiting for your approval</p>
                     </div>
-                    <p className="mb-0">Last week analytics</p>
-                  </div>
-                  <div className="avatar">
-                    <span className="avatar-initial rounded bg-label-warning">
-                      <i className="ti ti-user-exclamation ti-sm" />
-                    </span>
+                    <div className="avatar">
+                      <span className="avatar-initial rounded bg-label-warning">
+                        <i className="ti ti-user-exclamation ti-sm" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
 

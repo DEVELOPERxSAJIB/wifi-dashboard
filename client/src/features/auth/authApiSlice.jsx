@@ -51,6 +51,26 @@ export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
   }
 });
 
+// update auth user
+export const updateAuthUser = createAsyncThunk(
+  "auth/updateAuthUser",
+  async (data) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5050/api/v1/auth/update-auth-user`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
+
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
 // update passowrd
 export const updatePassword = createAsyncThunk(
   "auth/updatePassword",

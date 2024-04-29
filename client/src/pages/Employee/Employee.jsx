@@ -1,20 +1,43 @@
 import { Link } from "react-router-dom";
 import Table from "./Table";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const Employee = () => {
   return (
     <>
+    <PageTitle title={"My Employees"} />
       <div className="container-xxl flex-grow-1 container-p-y">
         <div className="d-flex justify-content-between align-items-center">
-        <h4 className="py-3 mb-2">
-          <span className="text-muted fw-light"></span>Employees
-        </h4>
-        <Link to={"/create-employee"} >
-            
-          <div className="btn btn-secondary add-new btn-primary waves-effect waves-light" tabIndex={0} aria-controls="DataTables_Table_0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasAddUser"><span><i className="ti ti-plus me-0 me-sm-1 ti-xs" /><span className="d-none d-sm-inline-block">Add Employee</span></span></div>
-            </Link >
+          <h4 className="py-3 mb-2">
+            <span className="text-muted fw-light"></span>Employees
+          </h4>
+          <Link to={"/create-employee"}>
+            <div
+              className="btn btn-secondary add-new btn-primary waves-effect waves-light"
+              tabIndex={0}
+              aria-controls="DataTables_Table_0"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#offcanvasAddUser"
+            >
+              <span>
+                <i className="ti ti-plus me-0 me-sm-1 ti-xs" />
+                <span className="d-none d-sm-inline-block">Add Employee</span>
+              </span>
+            </div>
+          </Link>
         </div>
-        {/* <div className="card">
+
+        <Table />
+      </div>
+    </>
+  );
+};
+
+export default Employee;
+
+{
+  /* <div className="card">
             <h5 className="card-header">Table Caption</h5>
             <div className="table-responsive text-nowrap">
               <table className="table">
@@ -352,11 +375,5 @@ const Employee = () => {
                 </tbody>
               </table>
             </div>
-          </div> */}
-          <Table />
-      </div>
-    </>
-  );
-};
-
-export default Employee;
+          </div> */
+}

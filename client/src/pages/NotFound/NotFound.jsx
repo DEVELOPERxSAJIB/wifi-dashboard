@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const NotFound = () => {
   return (
     <>
@@ -8,9 +10,9 @@ const NotFound = () => {
             <p className="mb-4 mx-2">
               Oops! The requested URL was not found on this server.
             </p>
-            <a href="index.html" className="btn btn-primary mb-4">
+            <Link to="/" className="btn btn-primary mb-4">
               Back to home
-            </a>
+            </Link>
             <div className="mt-4">
               <img
                 src="../../src/assets/img/illustrations/page-misc-error.png"

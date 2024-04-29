@@ -15,7 +15,24 @@ const bcrypt = require("bcryptjs");
  */
 const getAllUsers = async (req, res, next) => {
   try {
-    const user = await User.find().sort({ createdAt: -1 });
+    const { role } = req.query;
+    let query = {};
+
+    if (role === "admin") {
+      query = {};
+    } else if (role === "staff") {
+      query = { role: "staff" };
+    } else {
+      return errorResponse(res, {
+        statusCode: 400,
+        message: "Invalid role specified",
+      });
+    }
+
+    const user = await User.find(query)
+      .sort({ createdAt: -1 })
+      .select("-password")
+      .populate("addedBy");
 
     if (user.length == 0) {
       return errorResponse(res, {
@@ -49,6 +66,8 @@ const createUser = async (req, res, next) => {
       email,
       mobile,
       password,
+      role,
+      addedBy,
       salary,
       gender,
       remark,
@@ -83,7 +102,7 @@ const createUser = async (req, res, next) => {
 
       // documents upload
       const doc = req.files?.userDocuments;
-      console.log("pc files",doc);
+      console.log("pc files", doc);
       if (doc) {
         uploadedDocuements = await cloudUploadDocumnets(doc);
       }
@@ -108,12 +127,13 @@ const createUser = async (req, res, next) => {
       email,
       mobile,
       salary,
+      role,
       gender,
       remark,
+      addedBy,
       password: hashPass,
       address: {
         street,
-        province,
         city,
         postalCode,
         country,
@@ -162,39 +182,142 @@ const deleteUser = async (req, res, error) => {
   }
 };
 
-// /**
-//  * @DESC Update User
-//  * @ROUTE /api/v1/user/:id
-//  * @method PUT/PATCH
-//  * @access public
-//  */
-// export const updateUser = asyncHandler(async (req, res) => {
-//   const { id } = req.params;
+/**
+ * @DESC Update User
+ * @ROUTE /api/v1/user/:id
+ * @method PUT/PATCH
+ * @access private
+ */
+const updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-//   const { name, email, mobile, password, gender } = req.body;
+    const {
+      name,
+      email,
+      role,
+      mobile,
+      gender,
+      salary,
+      remark,
+      street,
+      city,
+      postalCode,
+      country,
+    } = req.body;
 
-//   if (!name || !email || !mobile || !password || !gender) {
-//     return res.status(400).json({ message: "All fields are required" });
-//   }
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        name,
+        email,
+        role,
+        mobile,
+        gender,
+        salary,
+        remark,
+        address: {
+          street,
+          city,
+          postalCode,
+          country,
+        },
+      },
+      { new: true }
+    );
 
-//   const user = await User.findByIdAndUpdate(
-//     id,
-//     {
-//       name,
-//       email,
-//       mobile,
-//       password,
-//       gender,
-//     },
-//     { new: true }
-//   );
+    successResponse(res, {
+      statusCode: 200,
+      message: `Profile successfully updated for ${user.name}`,
+      payload: {
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
-//   res.status(200).json(user);
-// });
+/**
+ * @DESC Update User Ban Status
+ * @ROUTE /api/v1/user/ban-user/:id
+ * @method PUT
+ * @access private
+ */
+const banUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    const { isBan, name } = user;
+
+    const userBanStatusUpdate = await User.findByIdAndUpdate(
+      id,
+      {
+        isBan: !isBan,
+      },
+      { new: true }
+    );
+
+    const msg = userBanStatusUpdate?.isBan
+      ? `${name} is banned successfully`
+      : `${name} unban successfully`;
+
+    successResponse(res, {
+      statusCode: 200,
+      message: msg,
+      payload: {
+        user: userBanStatusUpdate,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC Update User isActivate Status
+ * @ROUTE /api/v1/user/active-user/:id
+ * @method PUT
+ * @access private
+ */
+const activeUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { active } = req.body;
+
+    const user = await User.findById(id);
+
+    const { name } = user;
+
+    const userActiveStatusUpdate = await User.findByIdAndUpdate(
+      id,
+      {
+        isActivate: active,
+      },
+      { new: true }
+    );
+
+    const msg = `${name}'s account is activated`;
+
+    successResponse(res, {
+      statusCode: 200,
+      message: msg,
+      payload: {
+        user: userActiveStatusUpdate,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // module export
 module.exports = {
   getAllUsers,
   createUser,
   deleteUser,
+  updateUser,
+  banUser,
+  activeUser,
 };

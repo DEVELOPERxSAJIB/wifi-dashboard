@@ -9,6 +9,7 @@ import {
 import MainLoader from "../../utils/Loaders/MainLoader";
 import { Link, useNavigate } from "react-router-dom";
 import { BsTrash3 } from "react-icons/bs";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const CreatePlan = () => {
   const dispatch = useDispatch();
@@ -72,8 +73,7 @@ const CreatePlan = () => {
         mbps: "",
         badge: "",
       });
-      setIcon(null), 
-      alertMessage({ type: "success", message: message });
+      setIcon(null), alertMessage({ type: "success", message: message });
       dispatch(setMessageEmpty());
     }
 
@@ -89,6 +89,7 @@ const CreatePlan = () => {
         <MainLoader />
       ) : (
         <>
+          <PageTitle title={"Create New Plan"} />
           <div className="container">
             <div className="row my-5">
               <div className="col-md"></div>

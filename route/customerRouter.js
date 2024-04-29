@@ -5,7 +5,6 @@ const {
   getAllCustomer,
   deleteCustomer,
   updateCustomer,
-  singleCustomer,
 } = require("../controllers/customerController");
 const { customerPicture } = require("../utils/multer");
 const runValidation = require("../validators");
@@ -19,7 +18,6 @@ customerRouter.use(tokenVerify);
 
 // create route
 customerRouter.route("/").get(getAllCustomer);
-customerRouter.route("/:id").get(singleCustomer);
 customerRouter
   .route("/create-customer")
   .post(

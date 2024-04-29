@@ -17,26 +17,7 @@ export const getAllCustomer = createAsyncThunk(
   }
 );
 
-// get all customers
-export const getSingleCustomer = createAsyncThunk(
-  "customer/getSingleCustomer",
-  async (id) => {
-    try {
-      const res = await axios.get(
-        `http://localhost:5050/api/v1/customer/${id}`,
-        {
-          withCredentials: true,
-        }
-      );
-
-      return res.data;
-    } catch (error) {
-      throw new Error(error.response.data.message);
-    }
-  }
-);
-
-// create new plan
+// create new customer
 export const createNewCustomer = createAsyncThunk(
   "customer/createNewCustomer",
   async (data) => {
@@ -56,22 +37,25 @@ export const createNewCustomer = createAsyncThunk(
   }
 );
 
-// // create new plan
-// export const updatePlan = createAsyncThunk("plan/updatePlan", async (data) => {
-//   try {
-//     const res = await axios.put(
-//       `http://localhost:5050/api/v1/plan/update-plan/${data.id}`,
-//       data.data,
-//       {
-//         withCredentials: true,
-//       }
-//     );
+// update customer
+export const updateCustomer = createAsyncThunk(
+  "customer/updateCustomer",
+  async (data) => {
+    try {
+      const res = await axios.put(
+        `http://localhost:5050/api/v1/customer/update-customer/${data.id}`,
+        data.form_data,
+        {
+          withCredentials: true,
+        }
+      );
 
-//     return res.data;
-//   } catch (error) {
-//     throw new Error(error.response.data.message);
-//   }
-// });
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
 
 // delete customer
 export const deleteCustomer = createAsyncThunk(

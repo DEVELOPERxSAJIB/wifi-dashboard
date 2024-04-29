@@ -2,6 +2,8 @@ import { useState } from "react";
 import { IoTrash } from "react-icons/io5";
 import { countries } from "countries-list";
 import { Document, Page } from "react-pdf";
+import { alertMessage } from "../../utils/Alerts/alertMessage";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const CreateEmployee = () => {
   const countriesList = Object.values(countries);
@@ -22,6 +24,17 @@ const CreateEmployee = () => {
 
   const handleDocumentChange = (e) => {
     const files = e.target.files;
+
+    if (files.length > 5) {
+      alertMessage({
+        type: "warning",
+        message: "You can only upload a maximum of 5 documents",
+      });
+      const firstFiveFile = Array.from(files).slice(0, 5);
+      setDocuments(firstFiveFile);
+      return;
+    }
+
     if (files.length > 0) {
       setDocuments([...files]);
     }
@@ -40,7 +53,10 @@ const CreateEmployee = () => {
     setAvatar(null);
   };
 
-  const handleRemoveDocument = () => {};
+  const handleRemoveDocument = (index) => {
+    const newDocuments = documents.filter((_, i) => i !== index);
+    setDocuments(newDocuments);
+  };
 
   // const handleImageUrlInput = (event) => {
   //   setImageUrl(event.target.value);
@@ -52,6 +68,7 @@ const CreateEmployee = () => {
 
   return (
     <>
+      <PageTitle title={"Create New Employee"} />
       <div className="container-xxl flex-grow-1 container-p-y">
         <div className="app-ecommerce">
           {/* Add Product */}
@@ -337,14 +354,14 @@ const CreateEmployee = () => {
                           style={{
                             overflowY: "scroll",
                           }}
-                          className="col-12 col-sm-9 text-center d-flex"
+                          className="col-12 col-sm-9 text-center"
                         >
                           {documents?.length > 0 ? (
                             <>
                               {documents.map((file, index) => (
                                 <div
                                   key={index}
-                                  className="position-relative avartar-preview-img"
+                                  className="position-relative document-preview-img"
                                 >
                                   <span
                                     onClick={() => handleRemoveDocument(index)}
@@ -354,9 +371,6 @@ const CreateEmployee = () => {
                                   </span>
                                   {file.type === "application/pdf" ? (
                                     <div className="pdf-div">
-                                      <p>
-                                        Page {pageNumber} of {numPages}
-                                      </p>
                                       <Document
                                         file={file}
                                         onLoadSuccess={onDocumentLoadSuccess}
@@ -369,7 +383,6 @@ const CreateEmployee = () => {
                                       style={{
                                         width: "100%",
                                         height: "100%",
-                                        padding: "5px 0",
                                       }}
                                       src={URL.createObjectURL(file)}
                                       alt=""

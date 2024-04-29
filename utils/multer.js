@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
 // multer for plan icon
 const planIcon = multer({ storage }).single("planicon");
 const customerPicture = multer({ storage }).single("customerPicture");
+const userAvatar = multer({ storage }).single("userAvatar");
 
 // multer for users
 const fileUploader = multer({ storage }).fields([
@@ -25,4 +26,5 @@ module.exports = {
   planIcon,
   fileUploader,
   customerPicture,
+  userAvatar,
 };

@@ -1,17 +1,28 @@
 const express = require("express");
-const { getAllUsers, createUser, deleteUser } = require("../controllers/userController");
+const {
+  getAllUsers,
+  createUser,
+  deleteUser,
+  updateUser,
+  banUser,
+  activeUser,
+} = require("../controllers/userController");
 const { createUserValidation } = require("../validators/user");
 const runValidation = require("../validators");
 const { fileUploader } = require("../utils/multer");
+const tokenVerify = require("../middlewares/verifyToken");
 
 // init router
 const userRouter = express.Router();
 
 // use verify token
-// router.use(tokenVerify);
+userRouter.use(tokenVerify);
 
 // create route
 userRouter.route("/").get(getAllUsers);
+userRouter.route("/update-user/:id").put(fileUploader, updateUser);
+userRouter.route("/ban-user/:id").put(banUser);
+userRouter.route("/active-user/:id").put(activeUser);
 userRouter.route("/:id").delete(deleteUser);
 userRouter
   .route("/create-user")

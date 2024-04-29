@@ -29,13 +29,14 @@ const userSchema = mongoose.Schema(
       trim: true,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    role: {
+      type: String,
+      trim : true,
+      default: 'staff',
     },
     gender: {
       type: String,
-      enum: ["Female", "Male", "undefined"],
+      enum: ["female", "male", "undefined"],
       default: "undefined",
     },
     avatar: {
@@ -64,6 +65,15 @@ const userSchema = mongoose.Schema(
     isBan: {
       type: Boolean,
       default: false,
+    },
+    isActivate: {
+      type: Boolean,
+      default: false,
+    },
+    addedBy : {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null
     },
     address: {
       street: {

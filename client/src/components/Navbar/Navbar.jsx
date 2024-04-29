@@ -3,8 +3,7 @@ import { Link } from "react-router-dom";
 import { getLoggedInUser } from "../../features/auth/authSlice";
 
 const Navbar = () => {
-
-  const { user } = useSelector(getLoggedInUser)
+  const { user } = useSelector(getLoggedInUser);
 
   return (
     <>
@@ -162,16 +161,21 @@ const Navbar = () => {
               >
                 <div className="avatar avatar-online">
                   <img
-                    src={user ? user.avatar?.url :"../../src/assets/img/avatars/1.png"}
+                    src={
+                      user?.avatar?.url !== null
+                       ? user?.avatar?.url
+                        : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
+                    }
                     alt
                     className="h-full rounded-circle"
-                    style={{objectFit : "cover"}}
+                    style={{ objectFit: "cover" }}
                   />
                 </div>
               </a>
               <ul className="dropdown-menu dropdown-menu-end">
                 <li>
-                  <a
+                  <Link
+                    to={"/profile"}
                     className="dropdown-item"
                     href="pages-account-settings-account.html"
                   >
@@ -179,18 +183,24 @@ const Navbar = () => {
                       <div className="flex-shrink-0 me-3">
                         <div className="avatar avatar-online">
                           <img
-                            src="../../src/assets/img/avatars/1.png"
+                            src={
+                              user?.avatar?.url !== null
+                               ? user?.avatar?.url
+                                : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
+                            }
                             alt
-                            className="h-auto rounded-circle"
+                            className="h-fill rounded-circle"
+                            style={{ objectFit: "cover" }}
+
                           />
                         </div>
                       </div>
                       <div className="flex-grow-1">
-                        <span className="fw-medium d-block">John Doe</span>
-                        <small className="text-muted">Admin</small>
+                        <span className="fw-medium d-block">{user?.name}</span>
+                        <small className="text-muted">{user?.role}</small>
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <div className="dropdown-divider" />
@@ -239,19 +249,16 @@ const Navbar = () => {
                   </a>
                 </li>
                 <li>
-                  <a className="dropdown-item" href="pages-pricing.html">
+                  <Link className="dropdown-item" to="/packages">
                     <i className="ti ti-currency-dollar me-2 ti-sm" />
-                    <span className="align-middle">Pricing</span>
-                  </a>
+                    <span className="align-middle">Packages</span>
+                  </Link>
                 </li>
                 <li>
                   <div className="dropdown-divider" />
                 </li>
                 <li>
-                  <Link
-                    className="dropdown-item"
-                    to="/logout"
-                  >
+                  <Link className="dropdown-item" to="/logout">
                     <i className="ti ti-logout me-2 ti-sm" />
                     <span className="align-middle">Log Out</span>
                   </Link>

@@ -31,33 +31,6 @@ const getAllCustomer = async (req, res, next) => {
   }
 };
 
-/**
- * @DESC get single customers
- * @ROUTE /api/v1/customer/:id
- * @method GET
- * @access PRIVATE
- */
-const singleCustomer = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const customer = await Customer.findById(id).populate("package");
-
-    if (!customer) {
-      throw createError(400, "No customers found");
-    }
-
-    successResponse(res, {
-      statusCode: 200,
-      message: "Single customer fetched",
-      payload: {
-        customer,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 /**
  * @DESC Create a new customer
@@ -77,6 +50,7 @@ const createCustomer = async (req, res, next) => {
       postalCode,
       country,
       package,
+      gender,
     } = req.body;
 
     // exist plan check
@@ -100,6 +74,7 @@ const createCustomer = async (req, res, next) => {
       email,
       remark,
       package,
+      gender,
       address: {
         street,
         city,
@@ -243,5 +218,4 @@ module.exports = {
   createCustomer,
   deleteCustomer,
   updateCustomer,
-  singleCustomer,
 };

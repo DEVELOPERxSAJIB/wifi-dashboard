@@ -8,6 +8,7 @@ const {
   replaceHeypenWithDot,
 } = require("../helpers/bothAccessAbleToken");
 const emailWithNodemailer = require("../utils/sendEmail");
+const { cloudDeleteAvatar, cloudUploadAvatar } = require("../utils/cloudinary");
 
 /**
  * @DESC User Login
@@ -37,6 +38,23 @@ const authLogin = async (req, res, next) => {
 
     const user = await User.findOne({ email }).select("-password");
 
+    if (!user.isActivate) {
+      if (res.cookie) {
+        res.clearCookie("accessToken");
+      }
+      throw createError(404, "Your account is not activated yet");
+    }
+
+    if (user.isBan) {
+      if (res.cookie) {
+        res.clearCookie("accessToken");
+      }
+      throw createError(
+        404,
+        "Unfortunately your account is Banned. Please talk to our suppor system"
+      );
+    }
+
     // create access token
     const aToken = jwt.sign(
       { email: user.email },
@@ -60,7 +78,6 @@ const authLogin = async (req, res, next) => {
         user,
       },
     });
-
   } catch (error) {
     next(error);
   }
@@ -93,10 +110,83 @@ const authLogout = async (req, res, next) => {
  */
 const loggedInUser = async (req, res, next) => {
   try {
+
     return successResponse(res, {
       statusCode: 200,
       message: "Logged in user details",
       payload: { user: req.user },
+    });
+
+    
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @DESC Update User Data
+ * @ROUTE /api/v1/auth/update-user
+ * @method PUT
+ * @access private
+ */
+const updateAuthUser = async (req, res, next) => {
+  try {
+    const {
+      name,
+      email,
+      mobile,
+      salary,
+      gender,
+      street,
+      city,
+      postalCode,
+      country,
+    } = req.body;
+
+    const existingUser = await User.findById(req.user._id);
+    if (!existingUser) {
+      throw createError(400, "User not found");
+    }
+
+    let avatar = null;
+    if (req.file) {
+      const public_id = existingUser.avatar?.public_id;
+      if (public_id) {
+        await cloudDeleteAvatar(public_id);
+      }
+      avatar = await cloudUploadAvatar(req.file);
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        name,
+        email,
+        mobile,
+        salary,
+        gender,
+        avatar: {
+          public_id: avatar?.public_id
+            ? avatar?.public_id
+            : existingUser?.avatar?.public_id,
+          url: avatar?.secure_url
+            ? avatar?.secure_url
+            : existingUser?.avatar.url,
+        },
+        address: {
+          street,
+          city,
+          postalCode,
+          country,
+        },
+      },
+      { new: true }
+    ).select("-password");
+
+    successResponse(res, {
+      statusCode: 200,
+      message: "Your profile updated successfully",
+      payload: { user },
     });
   } catch (error) {
     next(error);
@@ -271,4 +361,5 @@ module.exports = {
   updatePassword,
   forgotPassword,
   resetPassword,
+  updateAuthUser,
 };

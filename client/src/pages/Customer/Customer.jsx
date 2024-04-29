@@ -11,9 +11,14 @@ import {
   deleteCustomer,
   getAllCustomer,
 } from "../../features/customer/customerApiSlice";
-import { gettingAllCustomers } from "../../features/customer/customerSlice";
+import {
+  gettingAllCustomers,
+  setMessageEmpty,
+} from "../../features/customer/customerSlice";
 import MainLoader from "../../utils/Loaders/MainLoader";
 import Swal from "sweetalert2";
+import { alertMessage } from "../../utils/Alerts/alertMessage";
+import PageTitle from "../../components/PageTitle/PageTitle";
 
 const CustomDataTable = styled(DataTable)`
   .rdt_TableCell {
@@ -31,7 +36,12 @@ const Customer = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { customers = [], loader } = useSelector(gettingAllCustomers);
+  const {
+    customers = [],
+    loader,
+    message,
+    error,
+  } = useSelector(gettingAllCustomers);
 
   const columns = [
     {
@@ -71,6 +81,10 @@ const Customer = () => {
       name: "Remark",
       selector: (row) =>
         row.remark ? <span className="text-info">{row.remark}</span> : null,
+    },
+    {
+      name: "Package",
+      selector: (row) => (row.package ? row?.package?.name : null),
     },
     {
       name: "Actions",
@@ -153,8 +167,20 @@ const Customer = () => {
     setFilteredData(result);
   }, [customers, search]);
 
+  useEffect(() => {
+    if (message) {
+      alertMessage({ type: "success", message: message });
+      dispatch(setMessageEmpty());
+    }
+    if (error) {
+      alertMessage({ type: "error", message: error });
+      dispatch(setMessageEmpty());
+    }
+  }, [dispatch, error, message]);
+
   return (
     <>
+    <PageTitle title={"My Customers"} />
       {loader ? (
         <MainLoader />
       ) : (
