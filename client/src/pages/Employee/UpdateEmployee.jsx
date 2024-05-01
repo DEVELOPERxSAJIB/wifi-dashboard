@@ -188,7 +188,7 @@ const UpdateEmployee = () => {
         confirmPassword: "",
       });
       dispatch(setMessageEmpty());
-      setDocuments(null)
+      setDocuments(null);
     }
     if (error) {
       alertMessage({ type: "error", message: message });
@@ -251,9 +251,13 @@ const UpdateEmployee = () => {
                           onChange={handleInputChange}
                           className="select-2 form-select"
                         >
-                          <option value="Hello">Select</option>
+                          <option disabled value="">
+                            Select
+                          </option>
                           <option value="staff">Staff</option>
-                          <option value="admin">Admin</option>
+                          {user?.role === "admin" && (
+                            <option value="admin">Admin</option>
+                          )}
                         </select>
                       </div>
                       <div className="row mb-3">
@@ -515,15 +519,16 @@ const UpdateEmployee = () => {
                             <div
                               key={item?._id}
                               style={{ background: "#7367F0" }}
-                              className="col-sm-12 col-md-4 col-lg-4 item p-2 border border-2 border-solid"
+                              className="col-sm-12 col-md-4 col-lg-4 item p-2 border border-2 border-solid d-flex align-items-center justify-content-center"   
                             >
-                              <div style={{ position: "relative" }}>
+                              <div>
                                 <a
                                   href={item?.url}
                                   target="_blank"
                                   data-lightbox="photos"
                                 >
                                   <img
+                                    
                                     className="img-fluid"
                                     src={item?.url}
                                     alt={"Staffs Doc"}

@@ -246,7 +246,10 @@ const updateUser = async (req, res, next) => {
 
     // exist user check
     const existingUserWithMobile = await User.findOne({ mobile });
-    if (existingUserWithMobile && existingUserWithMobile._id.toString() !== id) {
+    if (
+      existingUserWithMobile &&
+      existingUserWithMobile._id.toString() !== id
+    ) {
       throw new Error("Mobile number already in use");
     }
 
@@ -270,7 +273,11 @@ const updateUser = async (req, res, next) => {
 
     // documents upload
     let uploadedDocuments = null;
-    if (req.files && req.files.userDocuments && req.files.userDocuments.length > 0) {
+    if (
+      req.files &&
+      req.files.userDocuments &&
+      req.files.userDocuments.length > 0
+    ) {
       const doc = req.files.userDocuments;
 
       if (doc) {
@@ -284,15 +291,19 @@ const updateUser = async (req, res, next) => {
     }
 
     // separate data from uploaded documents
-    const documents = uploadedDocuments
-      ? uploadedDocuments.map((file) => ({
+    let documents = [];
+    uploadedDocuments?.length > 0 &&
+      uploadedDocuments?.map((file) => {
+        documents.push({
           public_id: file.public_id,
           url: file.secure_url.replace("/upload/", "/upload/f_auto,q_auto/"),
-        }))
-      : [];
+        });
+      });
 
     // make password hash
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : updateUser.password;
+    const hashedPassword = password
+      ? await bcrypt.hash(password, 10)
+      : updateUser.password;
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -315,7 +326,7 @@ const updateUser = async (req, res, next) => {
           public_id: avatar ? avatar.public_id : updateUser.avatar.public_id,
           url: avatar ? avatar.secure_url : updateUser.avatar.url,
         },
-        documents,
+        documents: documents.length > 0 ? documents : updateUser?.documents,
       },
       { new: true }
     );
