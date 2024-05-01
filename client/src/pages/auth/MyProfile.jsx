@@ -3,7 +3,6 @@ import { loggedinUserInfo } from "../../features/auth/authApiSlice";
 import { getLoggedInUser } from "../../features/auth/authSlice";
 import { useEffect } from "react";
 import moment from "moment";
-import { Document, Page } from "react-pdf";
 import MainLoader from "../../utils/Loaders/MainLoader";
 import PageTitle from "../../components/PageTitle/PageTitle";
 
@@ -210,7 +209,7 @@ const MyProfile = () => {
                                 key={item?._id}
                                 className="col-sm-6 col-md-4 col-lg-3 item"
                               >
-                                {item?.url?.toLowerCase().endsWith(".pdf") ? (
+                                {/* {item?.url?.toLowerCase().endsWith(".pdf") ? (
                                   <>
                                     <div>
                                       <Document pdf={item?.url}>
@@ -218,7 +217,7 @@ const MyProfile = () => {
                                       </Document>
                                     </div>
                                   </>
-                                ) : (
+                                ) : ( */}
                                   <a href={item?.url} data-lightbox="photos">
                                     <img
                                       className="img-fluid"
@@ -226,7 +225,7 @@ const MyProfile = () => {
                                       alt={item?.name}
                                     />
                                   </a>
-                                )}
+                                {/* )} */}
                               </div>
                             );
                           })}

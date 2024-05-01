@@ -59,10 +59,6 @@ const Login = () => {
       dispatch(setMessageEmpty());
     }
 
-    if (error) {
-      alertMessage({ type: "error", message: error });
-      dispatch(setMessageEmpty());
-    }
   }, [dispatch, error, isAuthenticated, message, navigate, user]);
 
   return (
