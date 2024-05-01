@@ -423,10 +423,10 @@ const Dashboard = () => {
                     className="dropdown-menu dropdown-menu-end"
                     aria-labelledby="earningReportsId"
                   >
-                    <a className="dropdown-item" href="javascript:void(0);">
+                    <a className="dropdown-item">
                       View More
                     </a>
-                    <a className="dropdown-item" href="javascript:void(0);">
+                    <a className="dropdown-item">
                       Delete
                     </a>
                   </div>

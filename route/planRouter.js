@@ -9,12 +9,13 @@ const {
 const runValidation = require("../validators");
 const { planIcon } = require("../utils/multer");
 const { createPlanValidation } = require("../validators/plan");
+const tokenVerify = require("../middlewares/verifyToken");
 
 // init router
 const planRouter = express.Router();
 
 // use verify token
-// router.use(tokenVerify);
+planRouter.use(tokenVerify);
 
 // create route
 planRouter.route("/").get(getAllPlans);

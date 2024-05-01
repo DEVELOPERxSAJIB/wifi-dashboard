@@ -11,13 +11,15 @@ import {
 } from "../../features/employee/employeeSlice";
 import MainLoader from "../../utils/Loaders/MainLoader";
 import moment from "moment";
-import { Document, Page } from "react-pdf";
+// import { Document, Page } from "react-pdf";
 import { FaBan } from "react-icons/fa";
 import { FiCheckCircle } from "react-icons/fi";
 import { alertMessage } from "../../utils/Alerts/alertMessage";
 import Swal from "sweetalert2";
 import { getLoggedInUser } from "../../features/auth/authSlice";
 import PageTitle from "../../components/PageTitle/PageTitle";
+import { FaDownload } from "react-icons/fa";
+import fileDownload from "js-file-download";
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -25,13 +27,13 @@ const Profile = () => {
   const { id } = useParams();
   const { employees, error, message, loader } = useSelector(fetchAllEmployee);
   const { user } = useSelector(getLoggedInUser);
-  console.log(user);
 
   // get single user data
-  const [singleEmployee, setSingleEmployee] = useState();
+  const [singleEmployee, setSingleEmployee] = useState(null);
+
   useEffect(() => {
-    const employee = employees.find((data) => data?._id === id);
-    setSingleEmployee(employee);
+    const employee = employees.filter((data) => data?._id === id);
+    setSingleEmployee(employee[0]);
   }, [employees, id]);
 
   const textStyle = {
@@ -54,9 +56,23 @@ const Profile = () => {
     });
   };
 
+  //  downlaod doc
+  const downloadFileURL = (url) => {
+
+    fileDownload('https://res.cloudinary.com/djdkjrlp8/image/upload/v1714475035/v3kzhxu8lqxdljwarlkz.jpg', url);
+
+    // const filename = url;
+    // const aTag = document.createElement("a");
+    // aTag.href = url;
+    // aTag.setAttribute("download", filename);
+    // document.body.appendChild(aTag);
+    // aTag.click();
+    // aTag.remove();
+  };
+
   useEffect(() => {
-    dispatch(getAllEmployees());
-  }, [dispatch]);
+    dispatch(getAllEmployees(user?.role));
+  }, [dispatch, user?.role]);
 
   useEffect(() => {
     if (message) {
@@ -94,7 +110,7 @@ const Profile = () => {
                   <div className="flex-shrink-0 mt-n2 mx-sm-0 mx-auto">
                     <img
                       src={
-                        singleEmployee?.avatar.url !== null
+                        singleEmployee?.avatar?.url !== null
                           ? singleEmployee?.avatar?.url
                           : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
                       }
@@ -286,23 +302,35 @@ const Profile = () => {
                                 key={item?._id}
                                 className="col-sm-6 col-md-4 col-lg-3 item"
                               >
-                                {item?.url?.toLowerCase().endsWith(".pdf") ? (
-                                  <>
-                                    <div>
-                                      <Document pdf={item?.url}>
-                                        <Page pageNumber={1} />
-                                      </Document>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <a href={item?.url} data-lightbox="photos">
-                                    <img
-                                      className="img-fluid"
-                                      src={item?.url}
-                                      alt={item?.name}
-                                    />
-                                  </a>
-                                )}
+                                <div style={{ position: "relative" }}>
+                                  {/* <a
+                                    href={item?.url}
+                                    target="_blank"
+                                    data-lightbox="photos"
+                                  > */}
+                                  <img
+                                    className="img-fluid"
+                                    src={item?.url}
+                                    alt={"Staffs Doc"}
+                                  />
+                                  {/* </a> */}
+                                  {/* Download button */}
+                                  <button
+                                    onClick={() => downloadFileURL(item?.url)}
+                                    style={{
+                                      position: "absolute",
+                                      bottom: "5px",
+                                      right: "5px",
+                                      borderRadius: "5px",
+                                      padding: "10px 12px",
+                                      background: "#00a8ff",
+                                      color: "#fff",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <FaDownload />
+                                  </button>
+                                </div>
                               </div>
                             );
                           })}

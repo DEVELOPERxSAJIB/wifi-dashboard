@@ -3,6 +3,8 @@ const { successResponse, errorResponse } = require("./responseController");
 const {
   cloudUploadAvatar,
   cloudUploadDocumnets,
+  cloudDeleteAvatar,
+  cloudUserDocsDelete,
 } = require("../utils/cloudinary");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
@@ -16,10 +18,10 @@ const bcrypt = require("bcryptjs");
 const getAllUsers = async (req, res, next) => {
   try {
     const { role } = req.query;
-    let query = {};
+    let query = null;
 
     if (role === "admin") {
-      query = {};
+      query = null;
     } else if (role === "staff") {
       query = { role: "staff" };
     } else {
@@ -45,6 +47,7 @@ const getAllUsers = async (req, res, next) => {
       statusCode: 200,
       message: "All users found",
       payload: {
+        totalUser: user.length,
         user,
       },
     });
@@ -61,18 +64,18 @@ const getAllUsers = async (req, res, next) => {
  */
 const createUser = async (req, res, next) => {
   try {
+    const { _id } = req.user;
+
     const {
       name,
       email,
       mobile,
       password,
       role,
-      addedBy,
       salary,
       gender,
       remark,
       street,
-      province,
       city,
       postalCode,
       country,
@@ -90,34 +93,31 @@ const createUser = async (req, res, next) => {
       throw createError(400, "User with this mobile already exists");
     }
 
+    // avatar upload
     let avatar = null;
-    let uploadedDocuements = null;
-
     if (req.files) {
-      // avatar upload
-      const data = req.files?.userAvatar[0];
+      const data = req.files?.userAvatar?.[0];
       if (data) {
         avatar = await cloudUploadAvatar(data);
       }
+    }
 
-      // documents upload
+    // documents upload
+    let uploadedDocuements = null;
+    if (req.files) {
       const doc = req.files?.userDocuments;
-      console.log("pc files", doc);
       if (doc) {
         uploadedDocuements = await cloudUploadDocumnets(doc);
       }
     }
 
     // separate data from uploaded docuements
-    let documents = [];
-    if (uploadedDocuements) {
-      uploadedDocuements.forEach((file) => {
-        documents.push({
-          public_id: file?.public_id,
-          url: file?.secure_url,
-        });
-      });
-    }
+    const documents = uploadedDocuements
+      ? uploadedDocuements.map((file) => ({
+          public_id: file.public_id,
+          url: file.secure_url.replace("/upload/", "/upload/f_auto,q_auto/"),
+        }))
+      : [];
 
     // password hash
     const hashPass = await bcrypt.hash(password, 10);
@@ -130,7 +130,7 @@ const createUser = async (req, res, next) => {
       role,
       gender,
       remark,
-      addedBy,
+      addedBy: _id,
       password: hashPass,
       address: {
         street,
@@ -142,15 +142,26 @@ const createUser = async (req, res, next) => {
         public_id: avatar ? avatar?.public_id : null,
         url: avatar ? avatar?.secure_url : null,
       },
-      documents: documents.length > 0 ? documents : uploadedDocuements,
+      documents,
     };
 
     // create new user
-    const user = await User.create(data);
+    let user = await User.create(data);
+    const addedByUser = await User.findById(user?._id).populate("addedBy");
+
+    if (addedByUser?.addedBy?.role == "admin") {
+      user = await User.findByIdAndUpdate(
+        user?._id,
+        {
+          isActivate: true,
+        },
+        { new: true }
+      );
+    }
 
     successResponse(res, {
       statusCode: 200,
-      message: `Profile successfull created for "${name}"`,
+      message: `Profile successfull created for ${name}`,
       payload: {
         user,
       },
@@ -170,13 +181,33 @@ const deleteUser = async (req, res, error) => {
   try {
     const { id } = req.params;
 
-    if (!id) {
-      throw createError("Invalid id provided");
+    const user = await User.findById(id);
+
+    if (!user) {
+      throw createError("Invalid User id provided");
     }
 
-    const user = await User.findByIdAndDelete(id);
+    // delete avatar
+    if (user?.avatar?.public_id) {
+      await cloudDeleteAvatar(user?.avatar?.public_id);
+    }
 
-    res.status(200).json(user);
+    // delete documents
+    const public_ids = [];
+    user.documents.forEach((doc) => {
+      public_ids.push(doc.public_id);
+    });
+    await cloudUserDocsDelete(public_ids);
+
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    successResponse(res, {
+      statusCode: 200,
+      message: "User deleted successfully",
+      payload: {
+        user: deletedUser,
+      },
+    });
   } catch (error) {
     next(error);
   }
@@ -191,7 +222,6 @@ const deleteUser = async (req, res, error) => {
 const updateUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-
     const {
       name,
       email,
@@ -204,7 +234,65 @@ const updateUser = async (req, res, next) => {
       city,
       postalCode,
       country,
+      password,
+      confirmPassword,
     } = req.body;
+
+    // exist user check
+    const existingUserWithEmail = await User.findOne({ email });
+    if (existingUserWithEmail && existingUserWithEmail._id.toString() !== id) {
+      throw new Error("Email already in use for another user");
+    }
+
+    // exist user check
+    const existingUserWithMobile = await User.findOne({ mobile });
+    if (existingUserWithMobile && existingUserWithMobile._id.toString() !== id) {
+      throw new Error("Mobile number already in use");
+    }
+
+    if (password !== confirmPassword) {
+      throw new Error("Confirm password does not match");
+    }
+
+    const updateUser = await User.findById(id);
+
+    let avatar = null;
+    if (req.files && req.files.userAvatar && req.files.userAvatar.length > 0) {
+      const data = req.files.userAvatar[0];
+      if (data) {
+        // delete previous avatar
+        await cloudDeleteAvatar(updateUser?.avatar?.public_id);
+
+        // upload new avatar
+        avatar = await cloudUploadAvatar(data);
+      }
+    }
+
+    // documents upload
+    let uploadedDocuments = null;
+    if (req.files && req.files.userDocuments && req.files.userDocuments.length > 0) {
+      const doc = req.files.userDocuments;
+
+      if (doc) {
+        // delete documents
+        const public_ids = updateUser.documents.map((doc) => doc.public_id);
+        await cloudUserDocsDelete(public_ids);
+
+        // upload new docs
+        uploadedDocuments = await cloudUploadDocumnets(doc);
+      }
+    }
+
+    // separate data from uploaded documents
+    const documents = uploadedDocuments
+      ? uploadedDocuments.map((file) => ({
+          public_id: file.public_id,
+          url: file.secure_url.replace("/upload/", "/upload/f_auto,q_auto/"),
+        }))
+      : [];
+
+    // make password hash
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : updateUser.password;
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -216,12 +304,18 @@ const updateUser = async (req, res, next) => {
         gender,
         salary,
         remark,
+        password: hashedPassword,
         address: {
           street,
           city,
           postalCode,
           country,
         },
+        avatar: {
+          public_id: avatar ? avatar.public_id : updateUser.avatar.public_id,
+          url: avatar ? avatar.secure_url : updateUser.avatar.url,
+        },
+        documents,
       },
       { new: true }
     );

@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   activeEmployee,
   banEmployee,
+  createNewEmployee,
+  deleteEmployee,
   getAllEmployees,
   updateEmployee,
 } from "./employeeApiSlice";
@@ -30,6 +32,32 @@ const employeeSlice = createSlice({
         state.employees = action.payload.payload.user;
       })
       .addCase(getAllEmployees.rejected, (state, action) => {
+        state.loader = false;
+        state.error = action.error.message;
+      })
+      .addCase(createNewEmployee.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(createNewEmployee.fulfilled, (state, action) => {
+        state.loader = false;
+        state.employees = [...state.employees, action.payload.payload.user];
+        state.message = action.payload.message
+      })
+      .addCase(createNewEmployee.rejected, (state, action) => {
+        state.loader = false;
+        state.error = action.error.message;
+      })
+      .addCase(deleteEmployee.pending, (state) => {
+        state.loader = true;
+      })
+      .addCase(deleteEmployee.fulfilled, (state, action) => {
+        state.loader = false;
+        state.message = action.payload.message
+        state.employees = state.employees.filter(
+          (data) => data._id !== action.payload.payload.user._id
+        );
+      })
+      .addCase(deleteEmployee.rejected, (state, action) => {
         state.loader = false;
         state.error = action.error.message;
       })

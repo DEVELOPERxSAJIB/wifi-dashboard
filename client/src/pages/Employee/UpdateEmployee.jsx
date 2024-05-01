@@ -15,6 +15,7 @@ import {
 } from "../../features/employee/employeeSlice";
 import PageTitle from "../../components/PageTitle/PageTitle";
 import MainLoader from "../../utils/Loaders/MainLoader";
+import { getLoggedInUser } from "../../features/auth/authSlice";
 
 const UpdateEmployee = () => {
   const dispatch = useDispatch();
@@ -24,15 +25,21 @@ const UpdateEmployee = () => {
   const { id } = useParams();
 
   const { employees, loader, message, error } = useSelector(fetchAllEmployee);
+  const { user } = useSelector(getLoggedInUser);
 
   // find single employee
   const [employee, setEmployee] = useState();
   useEffect(() => {
-    const data = employees?.find((data) => data?._id === id);
-    setEmployee(data);
+    if (employees && employees?.length > 0) {
+      const data = employees.find((data) => data?._id === id);
+      setEmployee(data);
+    }
   }, [employees, id]);
 
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState({
+    public_id: employee?.avatar?.public_id,
+    url: employee?.avatar?.url,
+  });
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   const handleAvatarChange = (e) => {
@@ -43,12 +50,12 @@ const UpdateEmployee = () => {
     }
   };
 
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState(employee?.documents);
 
   const handleDocumentChange = (e) => {
     const files = e.target.files;
 
-    if (files.length > 5) {
+    if (files?.length > 5) {
       alertMessage({
         type: "warning",
         message: "You can only upload a maximum of 5 documents",
@@ -58,7 +65,7 @@ const UpdateEmployee = () => {
       return;
     }
 
-    if (files.length > 0) {
+    if (files?.length > 0) {
       setDocuments([...files]);
     }
   };
@@ -107,43 +114,37 @@ const UpdateEmployee = () => {
   const handleSubmitForm = (e) => {
     e.preventDefault();
 
-    // const form_data = new FormData();
-    // form_data.append("name", input.name);
-    // form_data.append("role", input.role);
-    // form_data.append("email", input.email);
-    // form_data.append("mobile", input.mobile);
-    // form_data.append("street", input.street);
-    // form_data.append("city", input.city);
-    // form_data.append("postalCode", input.postalCode);
-    // form_data.append("country", input.country);
-    // form_data.append("salary", input.salary);
-    // form_data.append("remark", input.remark);
-    // form_data.append("password", input.password);
-    // form_data.append("confirmPassword", input.confirmPassword);
-    // form_data.append("gender", gender);
+    const form_data = new FormData();
+    form_data.append("name", input.name);
+    form_data.append("role", input.role);
+    form_data.append("email", input.email);
+    form_data.append("mobile", input.mobile);
+    form_data.append("street", input.street);
+    form_data.append("city", input.city);
+    form_data.append("postalCode", input.postalCode);
+    form_data.append("country", input.country);
+    form_data.append("salary", input.salary);
+    form_data.append("remark", input.remark);
+    form_data.append("password", input.password);
+    form_data.append("confirmPassword", input.confirmPassword);
+    form_data.append("gender", gender);
 
-    const data = {
-      name: input.name,
-      role: input.role,
-      email: input.email,
-      mobile: input.mobile,
-      street: input.street,
-      city: input.city,
-      postalCode: input.postalCode,
-      country: input.country,
-      salary: input.salary,
-      remark: input.remark,
-      password: input.password,
-      confirmPassword: input.confirmPassword,
-      gender: gender,
-    };
+    if (avatar) {
+      form_data.append("userAvatar", avatar);
+    }
 
-    dispatch(updateEmployee({ id: id, data: data }));
+    if (documents?.length > 0) {
+      documents?.forEach((doc) => {
+        form_data.append("userDocuments", doc);
+      });
+    }
+
+    dispatch(updateEmployee({ id: id, data: form_data }));
   };
 
   useEffect(() => {
-    dispatch(getAllEmployees());
-  }, [dispatch]);
+    dispatch(getAllEmployees(user?.role));
+  }, [dispatch, user]);
 
   useEffect(() => {
     setInput({
@@ -158,6 +159,11 @@ const UpdateEmployee = () => {
       salary: employee?.salary,
       remark: employee?.remark,
     });
+
+    if (employee?.avatar?.url) {
+      setAvatar({ url: employee?.avatar?.url });
+      setAvatarPreview(employee?.avatar?.url);
+    }
 
     if (employee) {
       setGender(employee?.gender || "");
@@ -182,7 +188,7 @@ const UpdateEmployee = () => {
         confirmPassword: "",
       });
       dispatch(setMessageEmpty());
-      navigate("/employees");
+      setDocuments(null)
     }
     if (error) {
       alertMessage({ type: "error", message: message });
@@ -208,7 +214,7 @@ const UpdateEmployee = () => {
                 </div>
                 <div className="d-flex align-content-center flex-wrap gap-3">
                   <button type="submit" className="btn btn-primary">
-                    Publish Profile
+                    Update Profile
                   </button>
                 </div>
               </div>
@@ -494,9 +500,51 @@ const UpdateEmployee = () => {
                   </div>
                   {/* Avatar  & Gander */}
                   {/* Documents */}
+
+                  {/* Show Previous Documetns */}
+                  {employee?.documents?.length > 0 && (
+                    <div className="container my-5">
+                      <div className="intro">
+                        <h5 className="text-center">
+                          {employee?.name} Documents
+                        </h5>
+                      </div>
+                      <div className="row photos">
+                        {employee?.documents?.map((item) => {
+                          return (
+                            <div
+                              key={item?._id}
+                              style={{ background: "#7367F0" }}
+                              className="col-sm-12 col-md-4 col-lg-4 item p-2 border border-2 border-solid"
+                            >
+                              <div style={{ position: "relative" }}>
+                                <a
+                                  href={item?.url}
+                                  target="_blank"
+                                  data-lightbox="photos"
+                                >
+                                  <img
+                                    className="img-fluid"
+                                    src={item?.url}
+                                    alt={"Staffs Doc"}
+                                  />
+                                </a>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="card mb-4">
                     <div className="card-header d-flex justify-content-between align-items-center">
                       <h5 className="mb-0 card-title">Documents</h5>
+                      {documents?.length > 0 && (
+                        <h5 className="mb-0 text-danger card-title">
+                          * New Documents will replace with old documents
+                        </h5>
+                      )}
                     </div>
                     <div className="card-body">
                       <div className="dropzone needsclick" id="dropzone-basic">
@@ -507,7 +555,7 @@ const UpdateEmployee = () => {
                         >
                           <div
                             style={
-                              documents.length > 0
+                              documents?.length > 0
                                 ? { height: "auto", overflowY: "scroll" }
                                 : {
                                     height: "250px",

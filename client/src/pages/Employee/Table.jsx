@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
-import { getAllEmployees } from "../../features/employee/employeeApiSlice";
+import {
+  deleteEmployee,
+  getAllEmployees,
+} from "../../features/employee/employeeApiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchAllEmployee } from "../../features/employee/employeeSlice";
+import { fetchAllEmployee, setMessageEmpty } from "../../features/employee/employeeSlice";
 import { FaRegEye } from "react-icons/fa";
 import { IoTrash } from "react-icons/io5";
 import { FiEdit } from "react-icons/fi";
 import { FaFileExport } from "react-icons/fa6";
 import MainLoader from "../../utils/Loaders/MainLoader";
 import { getLoggedInUser } from "../../features/auth/authSlice";
+import Swal from "sweetalert2";
+import { alertMessage } from "../../utils/Alerts/alertMessage";
 
 const CustomDataTable = styled(DataTable)`
   .rdt_TableCell {
@@ -28,7 +33,7 @@ const Table = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { employees, loader } = useSelector(fetchAllEmployee);
+  const { employees, loader, message, error } = useSelector(fetchAllEmployee);
   const { user } = useSelector(getLoggedInUser);
 
   const activateEmployee = employees.filter((data) => data.isActivate === true);
@@ -108,7 +113,10 @@ const Table = () => {
             >
               <FiEdit />
             </span>
-            <span className="badge rounded-pill bg-danger cursor-pointer bg-glow">
+            <span
+              onClick={() => handleDeleteUser(row._id)}
+              className="badge rounded-pill bg-danger cursor-pointer bg-glow"
+            >
               <IoTrash />
             </span>
           </div>
@@ -129,16 +137,43 @@ const Table = () => {
     // For simplicity, I'm just logging the selected rows
   };
 
+  const handleDeleteUser = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#685DD8",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete user!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(deleteEmployee(id));
+      }
+    });
+  };
+
   const [search, setSearch] = useState("");
   const [filteredEmployee, setFilteredEmployee] = useState([]);
 
   useEffect(() => {
     dispatch(getAllEmployees(user?.role));
-  }, [dispatch]);
+  }, [dispatch, user]);
 
   useEffect(() => {
     setFilteredEmployee(activateEmployee);
   }, [employees]);
+
+  useEffect(() => {
+    if (message) {
+      alertMessage({ type: "success", message: message });
+      dispatch(setMessageEmpty());
+      navigate("/employees");
+    }
+    if (error) {
+      alertMessage({ type: "error", message: error });
+      dispatch(setMessageEmpty());
+    }
+  }, [dispatch, error, message, navigate]);
 
   useEffect(() => {
     const result = activateEmployee.filter((data) => {

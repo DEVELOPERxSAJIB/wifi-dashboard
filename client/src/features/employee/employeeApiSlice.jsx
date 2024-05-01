@@ -6,10 +6,32 @@ export const getAllEmployees = createAsyncThunk(
   "employee/getAllEmployees",
   async (role) => {
     try {
+      const res = await axios.get(
+        `http://localhost:5050/api/v1/user?role=${role}`,
+        {
+          withCredentials: true,
+        }
+      );
 
-      const res = await axios.get(`http://localhost:5050/api/v1/user?role=${role}`, {
-        withCredentials: true,
-      });
+      return res.data;
+    } catch (error) {
+      throw new Error(error.response.data.message);
+    }
+  }
+);
+
+// create new user
+export const createNewEmployee = createAsyncThunk(
+  "employee/createNewEmployee",
+  async (data) => {
+    try {
+      const res = await axios.post(
+        `http://localhost:5050/api/v1/user/create-user`,
+        data,
+        {
+          withCredentials: true,
+        }
+      );
 
       return res.data;
     } catch (error) {
@@ -37,6 +59,21 @@ export const updateEmployee = createAsyncThunk(
     }
   }
 );
+
+// delete employee
+export const deleteEmployee = createAsyncThunk("employee/deleteEmployee", async (id) => {
+  try {
+    
+    const res = await axios.delete(`http://localhost:5050/api/v1/user/${id}`, {
+      withCredentials: true,
+    })
+
+    return res.data;
+
+  } catch (error) {
+    console.log(error.response.data.message)
+  }
+})
 
 // ban employee
 export const activeEmployee = createAsyncThunk(

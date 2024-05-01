@@ -11,6 +11,7 @@ const authRouter = require("./route/authRouter.js");
 const userRouter = require("./route/userRouter.js");
 const planRouter = require("./route/planRouter.js");
 const customerRouter = require("./route/customerRouter.js");
+const incomeRouter = require("./route/incomeRouter.js");
 
 // initialization
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/plan", planRouter);
 app.use("/api/v1/customer", customerRouter);
+app.use("/api/v1/income", incomeRouter);
 
 // client error handling
 app.use((req, res, next) => {

@@ -41,6 +41,15 @@ const cloudUploadDocumnets = async (docArray) => {
   return results;
 };
 
+// User documents Delete
+const cloudUserDocsDelete = async (publidIds) => {
+  await Promise.all(
+    publidIds.map(async (public_id) => {
+      await cloudinary.uploader.destroy(public_id);
+    })
+  );
+};
+
 // export const cloudUploads = async (path) => {
 //   // upload brand logo
 //   const data = await cloudinary.v2.uploader.upload(path);
@@ -54,4 +63,5 @@ module.exports = {
   cloudUploadAvatar,
   cloudUploadDocumnets,
   cloudDeleteAvatar,
+  cloudUserDocsDelete
 };

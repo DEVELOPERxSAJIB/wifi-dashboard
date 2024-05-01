@@ -19,14 +19,14 @@ const userRouter = express.Router();
 userRouter.use(tokenVerify);
 
 // create route
+userRouter
+  .route("/create-user")
+  .post(fileUploader, createUserValidation, runValidation, createUser);
 userRouter.route("/").get(getAllUsers);
 userRouter.route("/update-user/:id").put(fileUploader, updateUser);
 userRouter.route("/ban-user/:id").put(banUser);
 userRouter.route("/active-user/:id").put(activeUser);
 userRouter.route("/:id").delete(deleteUser);
-userRouter
-  .route("/create-user")
-  .post(fileUploader, createUserValidation, runValidation, createUser);
 
 // module default router
 module.exports = userRouter;

@@ -1,8 +1,10 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { getLoggedInUser } from "../../features/auth/authSlice";
+import { IoReorderThreeOutline } from "react-icons/io5";
 
-const Navbar = () => {
+// eslint-disable-next-line react/prop-types
+const Navbar = ({ toggleSidebar }) => {
   const { user } = useSelector(getLoggedInUser);
 
   return (
@@ -20,9 +22,15 @@ const Navbar = () => {
           className="navbar-nav-right d-flex align-items-center"
           id="navbar-collapse"
         >
-          <div className="navbar-nav align-items-center">
+          <div className="navbar-nav gap-3 align-items-center">
             <div className="nav-item navbar-search-wrapper mb-0">
               <a className="nav-item nav-link search-toggler d-flex align-items-center px-0">
+                <button
+                  onClick={() => toggleSidebar()}
+                  className="menu-toggle-button shawod-sm"
+                >
+                  <IoReorderThreeOutline size={26} />
+                </button>
                 <span className="d-none d-md-inline-block text-muted">
                   Hi {user?.name}, Welcome to dashboard
                 </span>
@@ -163,10 +171,10 @@ const Navbar = () => {
                   <img
                     src={
                       user?.avatar?.url !== null
-                       ? user?.avatar?.url
+                        ? user?.avatar?.url
                         : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
                     }
-                    alt
+                    alt={"User Avatar"}
                     className="h-full rounded-circle"
                     style={{ objectFit: "cover" }}
                   />
@@ -185,13 +193,12 @@ const Navbar = () => {
                           <img
                             src={
                               user?.avatar?.url !== null
-                               ? user?.avatar?.url
+                                ? user?.avatar?.url
                                 : "https://static.vecteezy.com/system/resources/previews/007/069/364/original/3d-user-icon-in-a-minimalistic-style-user-symbol-for-your-website-design-logo-app-ui-vector.jpg"
                             }
-                            alt
+                            alt={"User Avatar"}
                             className="h-fill rounded-circle"
                             style={{ objectFit: "cover" }}
-
                           />
                         </div>
                       </div>

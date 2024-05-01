@@ -146,7 +146,18 @@ ul {
   top: 0;
   margin: auto;
   margin-top: 20px;
+  z-index: 999;
 }
+
+button.menu-toggle-button.shawod-sm {
+  background : #fff !important;
+  border-radius : 5px !important;
+  border : 0 !important;
+  padding : 5px !important;
+  color : #7367F0 !important;
+}
+
+
 
 aside#layout-menu {
   position: sticky !important;
@@ -159,4 +170,13 @@ aside#layout-menu {
 .added-by:hover {
   text-decoration: underline;
   color: rebeccapurple !important;
+}
+
+@media (max-width: 1199px) {
+  button.menu-toggle-button.shawod-sm {
+    display: none;
+  }
+  aside#layout-menu {
+    display: none;
+  }
 }

@@ -1,19 +1,21 @@
 import { Link, useLocation, useParams } from "react-router-dom";
 
-const Sidebar = () => {
+// eslint-disable-next-line react/prop-types
+const Sidebar = ({ sidebar }) => {
   const location = useLocation();
   const { id } = useParams();
 
   return (
     <>
-      <aside
-        id="layout-menu"
-        className="layout-menu menu-vertical menu bg-menu-theme"
-      >
-        <div className="app-brand demo">
-          <a href="index.html" className="app-brand-link py-3">
-            <span className="app-brand-logo demo">
-              {/* <svg
+      {sidebar && (
+        <aside
+          id="layout-menu"
+          className="layout-menu menu-vertical menu bg-menu-theme"
+        >
+          <div className="app-brand demo">
+            <Link to="/" className="app-brand-link py-3">
+              <span className="app-brand-logo demo">
+                {/* <svg
                 width={32}
                 height={22}
                 viewBox="0 0 32 22"
@@ -47,184 +49,186 @@ const Sidebar = () => {
                   fill="#7367F0"
                 />
               </svg> */}
-            </span>
-            <span
-              style={{
-                background: "-webkit-linear-gradient(60deg, #4834d4, #7367F0, #9C94F4)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                fontWeight: "bold",
-              }}
-              className="app-brand-text demo menu-text fw-bold"
-            >
-              Penta Online
-            </span>
-          </a>
-        </div>
-        <div className="menu-inner-shadow" />
-
-        <ul className="menu-inner py-1">
-          <li
-            className={
-              location.pathname === "/" ? "menu-item active" : "menu-item"
-            }
-          >
-            <Link to={"/"} className="menu-link">
-              <i className="menu-icon tf-icons ti ti-home" />
-              <div data-i18n="Email">Dashboard</div>
+              </span>
+              <span
+                style={{
+                  background:
+                    "-webkit-linear-gradient(60deg, #4834d4, #7367F0, #9C94F4)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontWeight: "bold",
+                }}
+                className="app-brand-text demo menu-text fw-bold"
+              >
+                Penta Online
+              </span>
             </Link>
-          </li>
+          </div>
+          <div className="menu-inner-shadow" />
 
-          <li
-            className={
-              location.pathname === "/packages" ||
-              location.pathname === "/create-plan" ||
-              location.pathname === `/update-plan/${id}`
-                ? "menu-item active"
-                : "menu-item"
-            }
-          >
-            <Link to={"/packages"} className="menu-link">
-              <i className="ti ti-currency-dollar me-1 ti-xs"></i>
-              <div data-i18n="Email">Pricing & Plans</div>
-            </Link>
-          </li>
-
-          {/* Employees */}
-          <li className={"menu-item"}>
-            <a
-              href="#productSubmenu"
-              data-bs-toggle="collapse"
-              aria-expanded="false"
+          <ul className="menu-inner py-1">
+            <li
               className={
-                location.pathname === "/employees" ||
-                location.pathname === "/create-employee" ||
-                location.pathname === "/pending-employees" ||
-                location.pathname === `/employees/profile/${id}` ||
-                location.pathname === `/employees/update/${id}`
-                  ? `dropdown-toggle menu-link bg-custom`
-                  : `dropdown-toggle menu-link`
+                location.pathname === "/" ? "menu-item active" : "menu-item"
               }
             >
-              <i className="menu-icon tf-icons ti ti-users" />
-              <div data-i18n="Chat">Employees</div>
-            </a>
-            <ul className="list-unstyled collapse" id="productSubmenu">
-              <li
-                className={
-                  location.pathname === "/employees"
-                    ? "menu-item active"
-                    : "menu-item"
-                }
-              >
-                <Link to={"/employees"} className="menu-link">
-                  <div className="ms-3 d-flex">
-                    <i className="menu-icon tf-icons ti ti-folder" />
-                    <div data-i18n="Chat">My Stuffs</div>
-                  </div>
-                </Link>
-              </li>
+              <Link to={"/"} className="menu-link">
+                <i className="menu-icon tf-icons ti ti-home" />
+                <div data-i18n="Email">Dashboard</div>
+              </Link>
+            </li>
 
-              <li
-                className={
-                  location.pathname === "/create-employee"
-                    ? "menu-item active"
-                    : "menu-item"
-                }
-              >
-                <Link to={"/create-employee"} className="menu-link">
-                  <div className="ms-3 d-flex">
-                    <i className="menu-icon tf-icons ti ti-plus" />
-                    <div data-i18n="Kanban">Add Stuff</div>
-                  </div>
-                </Link>
-              </li>
-            </ul>
-          </li>
-
-          {/* Customers */}
-          <li className={"menu-item"}>
-            <a
-              href="#customerSubmenu"
-              data-bs-toggle="collapse"
-              aria-expanded="false"
+            <li
               className={
-                location.pathname === "/customers" ||
-                location.pathname === "/create-customer" ||
-                location.pathname === `/customers/account/${id}` || 
-                location.pathname === `/customers/update-customer/${id}`
-                  ? `dropdown-toggle menu-link bg-custom`
-                  : `dropdown-toggle menu-link`
+                location.pathname === "/packages" ||
+                location.pathname === "/create-plan" ||
+                location.pathname === `/update-plan/${id}`
+                  ? "menu-item active"
+                  : "menu-item"
               }
             >
-              <i className="menu-icon tf-icons ti ti-user" />
-              <div data-i18n="Chat">Customers</div>
-            </a>
-            <ul className="list-unstyled collapse" id="customerSubmenu">
-              <li
+              <Link to={"/packages"} className="menu-link">
+                <i className="ti ti-currency-dollar me-1 ti-xs"></i>
+                <div data-i18n="Email">Pricing & Plans</div>
+              </Link>
+            </li>
+
+            {/* Employees */}
+            <li className={"menu-item"}>
+              <a
+                href="#productSubmenu"
+                data-bs-toggle="collapse"
+                aria-expanded="false"
                 className={
-                  location.pathname === "/customers"
-                    ? "menu-item active"
-                    : "menu-item"
+                  location.pathname === "/employees" ||
+                  location.pathname === "/create-employee" ||
+                  location.pathname === "/pending-employees" ||
+                  location.pathname === `/employees/profile/${id}` ||
+                  location.pathname === `/employees/update/${id}`
+                    ? `dropdown-toggle menu-link bg-custom`
+                    : `dropdown-toggle menu-link`
                 }
               >
-                <Link to={"/customers"} className="menu-link">
-                  <div className="ms-3 d-flex">
-                    <i className="menu-icon tf-icons ti ti-folder" />
-                    <div data-i18n="Chat">All Customers</div>
-                  </div>
-                </Link>
-              </li>
+                <i className="menu-icon tf-icons ti ti-users" />
+                <div data-i18n="Chat">Employees</div>
+              </a>
+              <ul className="list-unstyled collapse" id="productSubmenu">
+                <li
+                  className={
+                    location.pathname === "/employees"
+                      ? "menu-item active"
+                      : "menu-item"
+                  }
+                >
+                  <Link to={"/employees"} className="menu-link">
+                    <div className="ms-3 d-flex">
+                      <i className="menu-icon tf-icons ti ti-folder" />
+                      <div data-i18n="Chat">My Stuffs</div>
+                    </div>
+                  </Link>
+                </li>
 
-              <li
+                <li
+                  className={
+                    location.pathname === "/create-employee"
+                      ? "menu-item active"
+                      : "menu-item"
+                  }
+                >
+                  <Link to={"/create-employee"} className="menu-link">
+                    <div className="ms-3 d-flex">
+                      <i className="menu-icon tf-icons ti ti-plus" />
+                      <div data-i18n="Kanban">Add Stuff</div>
+                    </div>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+            {/* Customers */}
+            <li className={"menu-item"}>
+              <a
+                href="#customerSubmenu"
+                data-bs-toggle="collapse"
+                aria-expanded="false"
                 className={
-                  location.pathname === "/create-customer"
-                    ? "menu-item active"
-                    : "menu-item"
+                  location.pathname === "/customers" ||
+                  location.pathname === "/create-customer" ||
+                  location.pathname === `/customers/account/${id}` ||
+                  location.pathname === `/customers/update-customer/${id}`
+                    ? `dropdown-toggle menu-link bg-custom`
+                    : `dropdown-toggle menu-link`
                 }
               >
-                <Link to={"/create-customer"} className="menu-link">
-                  <div className="ms-3 d-flex">
-                    <i className="menu-icon tf-icons ti ti-plus" />
-                    <div data-i18n="Kanban">Add Customer</div>
-                  </div>
-                </Link>
-              </li>
-            </ul>
-          </li>
+                <i className="menu-icon tf-icons ti ti-user" />
+                <div data-i18n="Chat">Customers</div>
+              </a>
+              <ul className="list-unstyled collapse" id="customerSubmenu">
+                <li
+                  className={
+                    location.pathname === "/customers"
+                      ? "menu-item active"
+                      : "menu-item"
+                  }
+                >
+                  <Link to={"/customers"} className="menu-link">
+                    <div className="ms-3 d-flex">
+                      <i className="menu-icon tf-icons ti ti-folder" />
+                      <div data-i18n="Chat">All Customers</div>
+                    </div>
+                  </Link>
+                </li>
 
-          {/* Charts & Maps */}
-          <li className="menu-header small text-uppercase">
-            <span className="menu-header-text" data-i18n="Charts & Maps">
-              Charts &amp; Maps
-            </span>
-          </li>
-          <li className="menu-item">
-            <a href="javascript:void(0);" className="menu-link menu-toggle">
-              <i className="menu-icon tf-icons ti ti-chart-pie" />
-              <div data-i18n="Charts">Charts</div>
-            </a>
-            <ul className="menu-sub">
-              <li className="menu-item">
-                <a href="charts-apex.html" className="menu-link">
-                  <div data-i18n="Apex Charts">Apex Charts</div>
-                </a>
-              </li>
-              <li className="menu-item">
-                <a href="charts-chartjs.html" className="menu-link">
-                  <div data-i18n="ChartJS">ChartJS</div>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li className="menu-item">
-            <a href="maps-leaflet.html" className="menu-link">
-              <i className="menu-icon tf-icons ti ti-map" />
-              <div data-i18n="Leaflet Maps">Leaflet Maps</div>
-            </a>
-          </li>
-        </ul>
-      </aside>
+                <li
+                  className={
+                    location.pathname === "/create-customer"
+                      ? "menu-item active"
+                      : "menu-item"
+                  }
+                >
+                  <Link to={"/create-customer"} className="menu-link">
+                    <div className="ms-3 d-flex">
+                      <i className="menu-icon tf-icons ti ti-plus" />
+                      <div data-i18n="Kanban">Add Customer</div>
+                    </div>
+                  </Link>
+                </li>
+              </ul>
+            </li>
+
+            {/* Charts & Maps */}
+            <li className="menu-header small text-uppercase">
+              <span className="menu-header-text" data-i18n="Charts & Maps">
+                Charts &amp; Maps
+              </span>
+            </li>
+            <li className="menu-item">
+              <a className="menu-link menu-toggle">
+                <i className="menu-icon tf-icons ti ti-chart-pie" />
+                <div data-i18n="Charts">Charts</div>
+              </a>
+              <ul className="menu-sub">
+                <li className="menu-item">
+                  <a href="charts-apex.html" className="menu-link">
+                    <div data-i18n="Apex Charts">Apex Charts</div>
+                  </a>
+                </li>
+                <li className="menu-item">
+                  <a href="charts-chartjs.html" className="menu-link">
+                    <div data-i18n="ChartJS">ChartJS</div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li className="menu-item">
+              <a href="maps-leaflet.html" className="menu-link">
+                <i className="menu-icon tf-icons ti ti-map" />
+                <div data-i18n="Leaflet Maps">Leaflet Maps</div>
+              </a>
+            </li>
+          </ul>
+        </aside>
+      )}
     </>
   );
 };

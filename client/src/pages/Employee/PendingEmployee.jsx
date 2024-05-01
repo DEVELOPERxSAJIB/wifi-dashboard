@@ -19,6 +19,7 @@ import Swal from "sweetalert2";
 import { alertMessage } from "../../utils/Alerts/alertMessage";
 import { timeAgo } from "../../helper/timeAgoFun";
 import PageTitle from "../../components/PageTitle/PageTitle";
+import { getLoggedInUser } from "../../features/auth/authSlice";
 
 const CustomDataTable = styled(DataTable)`
   .rdt_TableCell {
@@ -37,6 +38,7 @@ const PendingEmployee = () => {
   const navigate = useNavigate();
 
   const { employees, loader, message, error } = useSelector(fetchAllEmployee);
+  const { user } = useSelector(getLoggedInUser);
 
   const pendingEmployee = employees.filter((data) => data.isActivate === false);
 
@@ -87,7 +89,7 @@ const PendingEmployee = () => {
     },
     {
       name: "Created At",
-      selector: (row) => timeAgo(row.createdAt)
+      selector: (row) => timeAgo(row.createdAt),
     },
     {
       name: "Added By",
@@ -167,8 +169,8 @@ const PendingEmployee = () => {
   const [filteredEmployee, setFilteredEmployee] = useState([]);
 
   useEffect(() => {
-    dispatch(getAllEmployees());
-  }, [dispatch]);
+    dispatch(getAllEmployees(user?.role));
+  }, [dispatch, user]);
 
   useEffect(() => {
     setFilteredEmployee(pendingEmployee);
@@ -203,7 +205,7 @@ const PendingEmployee = () => {
 
   return (
     <>
-    <PageTitle title={"Pending Employees"} />
+      <PageTitle title={"Pending Employees"} />
       {loader ? (
         <MainLoader />
       ) : (
